@@ -46,3 +46,39 @@ catch_discover_tests(tests)
 #add_executable(custom-main-tests test.cpp test-main.cpp)
 #target_link_libraries(custom-main-tests PRIVATE Catch2::Catch2)
 
+
+set(SERVICEPATH ~/.config/systemd/user)
+set(SERVICEFILE touchcursor.service)
+set(CONFIGPATH ~/.config/touchcursor)
+set(CONFIGFILE touchcursor.conf)
+set(TARGET touchcursor)
+set(OUTPATH ./out)
+set(INSTALLPATH /usr/bin)
+set(SERVICE touchcursor.service)
+
+add_custom_target(deploy
+    COMMAND echo "# Stopping the service"
+    COMMAND systemctl --user stop ${SERVICE}
+    COMMAND echo ""
+
+    COMMAND echo "# Copying application to ${INSTALLPATH}"
+    COMMAND echo "# This action requires sudo."
+    COMMAND sudo cp ${OUTPATH}/${TARGET} ${INSTALLPATH}
+    COMMAND sudo chmod u+s ${INSTALLPATH}/${TARGET}
+    COMMAND echo ""
+
+    COMMAND echo "# Copying default configuration file to ${CONFIGPATH}/${CONFIGFILE}"
+    COMMAND mkdir -p ${CONFIGPATH}
+    COMMAND cp -n ${CONFIGFILE} ${CONFIGPATH}
+    COMMAND echo ""
+
+    COMMAND echo "# Copying service file to ${SERVICEPATH}"
+    COMMAND mkdir -p ${SERVICEPATH}
+    COMMAND cp -f ${SERVICEFILE} ${SERVICEPATH}
+    COMMAND echo ""
+
+    COMMAND echo "# Enabling and starting the service"
+    COMMAND systemctl --user daemon-reload
+    COMMAND systemctl --user enable ${SERVICE}
+    COMMAND systemctl --user start ${SERVICE}
+)
