@@ -1,4 +1,4 @@
-#define _GNU_SOURCE
+//#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,6 +6,7 @@
 
 #include "config.h"
 #include "keys.h"
+#include "KeyCodes.h"
 
 char configFilePath[256];
 char eventPath[18];
@@ -236,6 +237,9 @@ void readConfiguration()
             section = configuration_bindings;
             continue;
         }
+
+        KeyCodes keyCodes = KeyCodes{};
+
         // Read configurations
         switch (section)
         {
@@ -251,9 +255,9 @@ void readConfiguration()
                 {
                     char* tokens = line;
                     char* token = strsep(&tokens, "=");
-                    int fromCode = convertKeyStringToCode(token);
+                    int fromCode = keyCodes.getKeyCodeFromKeyString(token);
                     token = strsep(&tokens, "=");
-                    int toCode = convertKeyStringToCode(token);
+                    int toCode = keyCodes.getKeyCodeFromKeyString(token);
                     remap[fromCode] = toCode;
                     break;
                 }
@@ -262,7 +266,7 @@ void readConfiguration()
                     char* tokens = line;
                     char* token = strsep(&tokens, "=");
                     token = strsep(&tokens, "=");
-                    int code = convertKeyStringToCode(token);
+                    int code = keyCodes.getKeyCodeFromKeyString(token);
                     hyperKey = code;
                     break;
                 }
@@ -270,9 +274,9 @@ void readConfiguration()
                 {
                     char* tokens = line;
                     char* token = strsep(&tokens, "=");
-                    int fromCode = convertKeyStringToCode(token);
+                    int fromCode = keyCodes.getKeyCodeFromKeyString(token);
                     token = strsep(&tokens, "=");
-                    int toCode = convertKeyStringToCode(token);
+                    int toCode = keyCodes.getKeyCodeFromKeyString(token);
                     keymap[fromCode] = toCode;
                     break;
                 }

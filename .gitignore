@@ -1,2 +1,14 @@
 out
 obj
+
+CMakeFiles
+CTestTestfile.cmake
+DartConfiguration.tcl
+CMakeCache.txt
+cmake_install.cmake
+tests_include-b12d07c.cmake
+tests_tests-b12d07c.cmake
+test_sources_include-b12d07c.cmake
+tests
+touchcursor_linux
+libtest_sources.a
