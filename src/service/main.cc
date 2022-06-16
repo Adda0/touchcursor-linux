@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
     // Read events
     struct input_event inputEvent;
     ssize_t result;
-    while (1)
+    while (true)
     {
         result = read(input, &inputEvent, sizeof(inputEvent));
         if (result == (ssize_t) - 1)

@@ -7,6 +7,7 @@
 #include "config.h"
 #include "keys.h"
 #include "KeyCodes.h"
+#include "Bindings.h"
 
 char configFilePath[256];
 char eventPath[18];
@@ -203,7 +204,9 @@ void readConfiguration()
         return;
     }
     fprintf(stdout, "info: found the configuration file\n");
-    // Parse the configuration file
+
+    // Parse the configuration file.
+    Bindings bindings = Bindings{};
     char* buffer = NULL;
     size_t length = 0;
     ssize_t result = -1;
@@ -258,7 +261,7 @@ void readConfiguration()
                     int fromCode = keyCodes.getKeyCodeFromKeyString(token);
                     token = strsep(&tokens, "=");
                     int toCode = keyCodes.getKeyCodeFromKeyString(token);
-                    remap[fromCode] = toCode;
+                    bindings.addPermanentRemapping(fromCode, toCode);
                     break;
                 }
             case configuration_hyper:
@@ -267,7 +270,7 @@ void readConfiguration()
                     char* token = strsep(&tokens, "=");
                     token = strsep(&tokens, "=");
                     int code = keyCodes.getKeyCodeFromKeyString(token);
-                    hyperKey = code;
+                    bindings.addHyperKey(code);
                     break;
                 }
             case configuration_bindings:

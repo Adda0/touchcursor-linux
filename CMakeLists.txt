@@ -17,12 +17,12 @@ set(SOURCE_FILES
         src/service/mapper.h
         src/service/queue.cc
         src/service/queue.h
-        src/service/HyperBinding.cc src/service/HyperBinding.h)
+        src/service/Bindings.cc src/service/Bindings.h)
 
 set(TEST_FILES
         src/test/testKeyCodes.cc
         ${SOURCE_FILES}
-)
+        src/test/testBindings.cc)
 
 # Add executable target with source files listed in SOURCE_FILES variable
 add_executable(touchcursor_linux src/service/main.cc ${SOURCE_FILES})
