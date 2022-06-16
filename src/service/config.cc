@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <ranges>
 
 #include "config.h"
 #include "keys.h"
@@ -210,6 +211,8 @@ void readConfiguration()
     char* buffer = NULL;
     size_t length = 0;
     ssize_t result = -1;
+    std::string current_hyper_key{};
+
     while ((result = getline(&buffer, &length, configFile)) != -1)
     {
         char* line = trimComment(buffer);
@@ -267,21 +270,36 @@ void readConfiguration()
             case configuration_hyper:
                 {
                     char* tokens = line;
+                    char* hyperKeyName = strsep(&tokens, "=");
                     char* token = strsep(&tokens, "=");
-                    token = strsep(&tokens, "=");
                     int code = keyCodes.getKeyCodeFromKeyString(token);
+
+                    bindings.addHyperName(hyperKeyName, code);
                     bindings.addHyperKey(code);
                     break;
                 }
             case configuration_bindings:
                 {
-                    char* tokens = line;
-                    char* token = strsep(&tokens, "=");
+                    std::string line_str = line;
+                    if (line_str.starts_with("[")) {
+                        line_str.erase(0);
+                        line_str.erase(line_str.length() - 1);
+                        line_str.erase(0, line_str.find_last_of('.'));
+                        current_hyper_key = line_str;
+                        break;
+                    }
+
+                    char* token = strsep(&line, "=");
                     int fromCode = keyCodes.getKeyCodeFromKeyString(token);
-                    token = strsep(&tokens, "=");
+                    token = strsep(&line, "=");
                     int toCode = keyCodes.getKeyCodeFromKeyString(token);
-                    keymap[fromCode] = toCode;
-                    break;
+
+                    if (current_hyper_key.empty()) {
+                        bindings.addCommonHyperMapping(fromCode, toCode);
+                    } else {
+                        bindings.addHyperMapping(bindings.getHyperKeyForHyperName(current_hyper_key), fromCode, toCode);
+                        break;
+                    }
                 }
             case configuration_none:
             default:

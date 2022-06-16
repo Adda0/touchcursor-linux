@@ -1,4 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
+#include <iostream>
 
 #include "../service/Bindings.h"
 #include "../service/KeyCodes.h"
@@ -11,10 +12,15 @@ TEST_CASE("Access bindings map", "[bindings]") {
 
     SECTION("Manipulate with hyper key bindings") {
         auto hyperKey = keyCodes.getKeyCodeFromKeyString("KEY_X");
+        //std::cout << "Counter: \n";
 
         SECTION("Add hyper key explicitly") {
             bindings.addHyperKey(hyperKey);
             REQUIRE(bindings.hyperKeyExists(hyperKey));
+        }
+
+        SECTION("Do not add hyper key explicitly") {
+            REQUIRE(!bindings.hyperKeyExists(hyperKey));
         }
 
         bindings.addHyperMapping(hyperKey, originalKey, mappedKey);

@@ -18,12 +18,16 @@ using THyperKey = int;
 using TOriginalKey = int;
 using TMappedKey = int;
 using TPressedKey = int;
+using THyperName = std::string;
 using TKeyBindingMap = std::unordered_map<TOriginalKey, TMappedKey>;
 using THyperKeysMap = std::unordered_map<THyperKey, TKeyBindingMap>;
+using THyperNamesMap = std::unordered_map<THyperName, THyperKey>;
 
 class Bindings {
 public:
     TKeyBindingMap& addHyperKey(const THyperKey& hyperKey);
+    void addHyperName(const THyperName& hyperName, const THyperKey& hyperKey);
+    THyperKey getHyperKeyForHyperName(const THyperName& hyperName);
     void addPermanentRemapping(const TOriginalKey& originalKey, const TMappedKey& mappedKey);
     void addCommonHyperMapping(const TOriginalKey& originalKey, const TMappedKey& mappedKey);
     void addHyperMapping(const THyperKey& hyperKey, const TOriginalKey& originalKey, const TMappedKey& mappedKey);
@@ -36,6 +40,7 @@ private:
     TKeyBindingMap commonHyperBindings;
     THyperKeysMap hyperBindings;
     TKeyBindingMap permanentRemappings;
+    THyperNamesMap hyperNamesMap;
 };
 
 #endif //TOUCHCURSOR_LINUX_HYPERBINDING_H

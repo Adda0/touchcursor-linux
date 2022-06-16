@@ -10,9 +10,8 @@ void Bindings::addHyperMapping(const THyperKey& hyperKey, const TOriginalKey& or
     auto& keyBindingMap = this->addHyperKey(hyperKey);
 
     keyBindingMap.insert_or_assign(originalKey, mappedKey);
-    std::cout << "After insertion: " << keyBindingMap.find(originalKey)->second << "\n";
-
-    std::cout << "With method: " << this->getMappedKeyForHyperBinding(hyperKey, originalKey) << "\n";
+    //std::cout << "After insertion: " << keyBindingMap.find(originalKey)->second << "\n";
+    //std::cout << "With method: " << this->getMappedKeyForHyperBinding(hyperKey, originalKey) << "\n";
 }
 
 bool Bindings::hyperKeyExists(const THyperKey& hyperKey) {
@@ -29,7 +28,7 @@ void Bindings::resolveKeyPress(const TPressedKey& pressedKey) {
 
 TMappedKey &Bindings::getMappedKeyForHyperBinding(const THyperKey& hyperKey, const TOriginalKey& originalKey) {
     auto& hyperKeyBindings = this->hyperBindings.find(hyperKey)->second;
-    std::cout << "Empty: " << hyperKeyBindings.empty() << "\n";
+    //std::cout << "Empty: " << hyperKeyBindings.empty() << "\n";
     auto originalKeyBinding = hyperKeyBindings.find(originalKey);
     if (originalKeyBinding == hyperKeyBindings.end()) {
         throw OriginalKeyNotFoundException();
@@ -53,4 +52,12 @@ void Bindings::addCommonHyperMapping(const TOriginalKey &originalKey, const TMap
 
 TKeyBindingMap& Bindings::addHyperKey(const THyperKey &hyperKey) {
     return this->hyperBindings.insert({hyperKey, TKeyBindingMap{}}).first->second;
+}
+
+void Bindings::addHyperName(const THyperName& hyperName, const THyperKey& hyperKey) {
+    this->hyperNamesMap.insert_or_assign(hyperName, hyperKey);
+}
+
+THyperKey Bindings::getHyperKeyForHyperName(const THyperName &hyperName) {
+    return this->hyperNamesMap.find(hyperName)->second;
 }
