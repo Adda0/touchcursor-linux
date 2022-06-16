@@ -17,7 +17,7 @@ set(SOURCE_FILES
         src/service/mapper.h
         src/service/queue.cc
         src/service/queue.h
-)
+        src/service/HyperBinding.cc src/service/HyperBinding.h)
 
 set(TEST_FILES
         src/test/testKeyCodes.cc
