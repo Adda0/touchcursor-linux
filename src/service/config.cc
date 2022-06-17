@@ -292,9 +292,9 @@ Bindings readConfiguration(const std::string& configPath)
                 {
                     std::string line_str = line;
                     if (line_str.starts_with("[")) {
-                        line_str.erase(0);
+                        line_str.erase(0, 1);
                         line_str.erase(line_str.length() - 1);
-                        line_str.erase(0, line_str.find_last_of('.'));
+                        line_str.erase(0, line_str.find_last_of('.') + 1);
                         current_hyper_key = line_str;
                         break;
                     }
@@ -304,10 +304,16 @@ Bindings readConfiguration(const std::string& configPath)
                     token = strsep(&line, "=");
                     int toCode = keyCodes.getKeyCodeFromKeyString(token);
 
+                    std::cout << "Current Hyper key empty: " << current_hyper_key.empty() << "\n";
+
                     if (current_hyper_key.empty()) {
+                        std:: cout << "Adding common hyper key mapping.\n";
                         bindings.addCommonHyperMapping(fromCode, toCode);
+                        //std::cout << bindings.getMappedKeyForHyperBinding(hyperKey, fromCode) << "\n";
                     } else {
+                        std::cout << "Current hyper key: " << current_hyper_key << "\n";
                         bindings.addHyperMapping(bindings.getHyperKeyForHyperName(current_hyper_key), fromCode, toCode);
+                        std::cout << "Added specific hyper key option.\n";
                         break;
                     }
                 }

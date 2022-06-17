@@ -31,7 +31,10 @@ TMappedKey &Bindings::getMappedKeyForHyperBinding(const THyperKey& hyperKey, con
     //std::cout << "Empty: " << hyperKeyBindings.empty() << "\n";
     auto originalKeyBinding = hyperKeyBindings.find(originalKey);
     if (originalKeyBinding == hyperKeyBindings.end()) {
-        throw OriginalKeyNotFoundException();
+        originalKeyBinding = this->commonHyperBindings.find(originalKey);
+        if (originalKeyBinding == this->commonHyperBindings.end()) {
+            throw OriginalKeyNotFoundException();
+        }
     }
 
     return originalKeyBinding->second;
