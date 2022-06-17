@@ -62,7 +62,12 @@ void Bindings::addHyperName(const THyperName& hyperName, const THyperKey& hyperK
 }
 
 THyperKey Bindings::getHyperKeyForHyperName(const THyperName &hyperName) {
-    return this->hyperNamesMap.find(hyperName)->second;
+    auto hyperKey { this->hyperNamesMap.find(hyperName) };
+    if (hyperKey != this->hyperNamesMap.end()) {
+        return hyperKey->second;
+    }
+
+    throw HyperKeyNotFoundException();
 }
 
 bool Bindings::isMappedKeyForHyperBinding(THyperKey hyperKey, TOriginalKey originalKey) {

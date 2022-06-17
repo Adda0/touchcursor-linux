@@ -27,8 +27,8 @@ set(TEST_FILES
 )
 
 # Add executable target with source files listed in SOURCE_FILES variable
-add_executable(touchcursor_linux src/service/main.cc ${SOURCE_FILES})
-target_compile_features(touchcursor_linux PUBLIC cxx_std_20)
+add_executable(touchcursor src/service/main.cc ${SOURCE_FILES})
+target_compile_features(touchcursor PUBLIC cxx_std_20)
 
 find_package(Catch2 3 REQUIRED)
 include(CTest)

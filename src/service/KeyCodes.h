@@ -23,7 +23,7 @@
 class KeyCodes {
 public:
     KeyCodes() = default;
-    int getKeyCodeFromKeyString(const std::string keyString);
+    int getKeyCodeFromKeyString(const std::string& keyString);
 
 private:
     const std::unordered_map<std::string, int> key_codes = {

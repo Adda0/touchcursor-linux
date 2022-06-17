@@ -38,6 +38,23 @@ TEST_CASE("Parse simple configuration file", "[config]") {
         REQUIRE(bindings.getMappedKeyForHyperBinding(hyperKeySpace, originalKey) == mappedKey);
         REQUIRE(bindings.getMappedKeyForHyperBinding(hyperKeyV, originalKey) == mappedKey);
         REQUIRE(bindings.getMappedKeyForHyperBinding(hyperKeyV, originalKeySpecific) == mappedKeySpecific);
-        
     }
+
+    SECTION("Parse config_files/simple_config_only_specific_hyper_key.conf") {
+        std::filesystem::path configPath = std::filesystem::current_path() / "src/tests/config_files/simple_config_only_specific_hyper_key.conf";
+
+        REQUIRE_THROWS_AS(readConfiguration(std::string{configPath}), HyperKeyNotFoundException);
+    }
+
+    SECTION("Parse config_files/simple_config_remap.conf") {
+        TOriginalKey originalKeyRemap{ keyCodes.getKeyCodeFromKeyString("KEY_T") };
+        TMappedKey mappedKeyRemap{ keyCodes.getKeyCodeFromKeyString("KEY_M") };
+
+        std::filesystem::path configPath = std::filesystem::current_path() / "src/tests/config_files/simple_config_remap.conf";
+
+        auto bindings = readConfiguration(std::string{configPath});
+
+        REQUIRE(bindings.getMappedKeyForPermanentRemapping(originalKeyRemap) == mappedKeyRemap);
+    }
+
 }

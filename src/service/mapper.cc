@@ -15,50 +15,6 @@ enum states state = idle;
 static int hyperEmitted;
 
 /**
- * Checks if the key is the hyper key.
- * */
-static int isHyper(int code)
-{
-    return code == hyperKey;
-}
-
-/**
- * Checks if the key has been mapped.
- * */
-static int isMapped(int code)
-{
-    return keymap[code] != 0;
-}
-
-/**
- * Converts the input code to the mapped code.
- * */
-static int getMapped(int code)
-{
-    return keymap[code];
-}
-
-/**
- * Checks if the key has been permanently mapped.
- * */
-static int isRemapped(int code)
-{
-    return remap[code] != 0;
-}
-
-/**
- * Converts the input code to the remapped code.
- * */
-static int getRemapped(int code)
-{
-    if (remap[code] != 0)
-    {
-        return remap[code];
-    }
-    return code;
-}
-
-/**
  * * Processes a key input event. Converts and emits events as necessary.
  * */
 void processKey(Bindings& bindings, int type, int code, int value)

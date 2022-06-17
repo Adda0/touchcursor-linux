@@ -14,6 +14,12 @@ class OriginalKeyNotFoundException: public std::exception {
     }
 };
 
+class HyperKeyNotFoundException: public std::exception {
+    [[nodiscard]] const char* what() const noexcept override {
+        return "Hyper key for the given hyper key name not found in hyper key names map.";
+    }
+};
+
 using THyperKey = int;
 using TOriginalKey = int;
 using TMappedKey = int;
