@@ -1,6 +1,8 @@
 #ifndef config_h
 #define config_h
 
+#include "Bindings.h"
+
 /**
  * The event path for the device.
  * */
@@ -24,6 +26,6 @@ extern int remap[256];
 /**
  * Reads the configuration file.
  * */
-void readConfiguration();
+Bindings readConfiguration(const std::string& configPath = "");
 
 #endif

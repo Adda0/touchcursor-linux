@@ -15,7 +15,7 @@
 * */
 int main(int argc, char* argv[])
 {
-    readConfiguration();
+    Bindings bindings = readConfiguration();
     if (eventPath[0] == '\0')
     {
         fprintf(stderr, "error: please specify the keyboard device name in the configuration file\n");
@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
         if (inputEvent.type == EV_KEY
             && (inputEvent.value == 0 || inputEvent.value == 1 || inputEvent.value == 2))
         {
-            processKey(inputEvent.type, inputEvent.code, inputEvent.value);
+            processKey(bindings, inputEvent.type, inputEvent.code, inputEvent.value);
         }
         else
         {

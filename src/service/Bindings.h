@@ -36,6 +36,8 @@ public:
     TMappedKey& getMappedKeyForHyperBinding(const THyperKey& hyperKey, const TOriginalKey& originalKey);
     TMappedKey& getMappedKeyForPermanentRemapping(const TOriginalKey& originalKey);
 
+    bool isMappedKeyForHyperBinding(THyperKey hyperKey, TOriginalKey originalKey);
+
 private:
     TKeyBindingMap commonHyperBindings;
     THyperKeysMap hyperBindings;

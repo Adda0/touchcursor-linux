@@ -20,9 +20,11 @@ set(SOURCE_FILES
         src/service/Bindings.cc src/service/Bindings.h)
 
 set(TEST_FILES
-        src/test/testKeyCodes.cc
+        src/tests/testKeyCodes.cc
+        src/tests/testBindings.cc
+        src/tests/testConfiguration.cc
         ${SOURCE_FILES}
-        src/test/testBindings.cc)
+)
 
 # Add executable target with source files listed in SOURCE_FILES variable
 add_executable(touchcursor_linux src/service/main.cc ${SOURCE_FILES})
@@ -35,7 +37,7 @@ include(Catch)
 add_library(test_sources OBJECT ${TEST_FILES})
 
 # These tests can use the Catch2-provided main
-add_executable(tests src/test/test.cc)
+add_executable(tests src/tests/test.cc)
 target_compile_features(tests PUBLIC cxx_std_20)
 target_link_libraries(tests PUBLIC Catch2::Catch2WithMain)
 target_link_libraries(tests PUBLIC test_sources)

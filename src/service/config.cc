@@ -1,9 +1,10 @@
 //#define _GNU_SOURCE
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cctype>
 #include <ranges>
+#include <iostream>
 
 #include "config.h"
 #include "keys.h"
@@ -176,38 +177,46 @@ static enum sections
 /**
  * Reads the configuration file.
  * */
-void readConfiguration()
+Bindings readConfiguration(const std::string& configPath)
 {
+    Bindings bindings = Bindings{};
+
     // Find the configuration file
     configFilePath[0] = '\0';
     FILE* configFile;
-    char* homePath = getenv("HOME");
-    if (!homePath)
-    {
-        fprintf(stderr, "error: home path environment variable not specified\n");
+
+    if (configPath.empty()) {
+        char* homePath = getenv("HOME");
+        if (!homePath)
+        {
+            fprintf(stderr, "error: home path environment variable not specified\n");
+        }
+        if (homePath)
+        {
+            strcat(configFilePath, homePath);
+            strcat(configFilePath, "/.config/touchcursor/touchcursor.conf");
+            fprintf(stdout, "info: looking for the configuration file at: %s\n", configFilePath);
+            configFile = fopen(configFilePath, "r");
+        }
+        if (!configFile)
+        {
+            strcpy(configFilePath, "/etc/touchcursor/touchcursor.conf");
+            fprintf(stdout, "info: looking for the configuration file at: %s\n", configFilePath);
+            configFile = fopen(configFilePath, "r");
+        }
+        if (!configFile)
+        {
+            fprintf(stderr, "error: could not open the configuration file\n");
+            return bindings;
+        }
+    } else {
+        fprintf(stdout, "info: looking for the configuration file at: %s\n", configPath.c_str());
+        configFile = fopen(configPath.c_str(), "r");
     }
-    if (homePath)
-    {
-        strcat(configFilePath, homePath);
-        strcat(configFilePath, "/.config/touchcursor/touchcursor.conf");
-        fprintf(stdout, "info: looking for the configuration file at: %s\n", configFilePath);
-        configFile = fopen(configFilePath, "r");
-    }
-    if (!configFile)
-    {
-        strcpy(configFilePath, "/etc/touchcursor/touchcursor.conf");
-        fprintf(stdout, "info: looking for the configuration file at: %s\n", configFilePath);
-        configFile = fopen(configFilePath, "r");
-    }
-    if (!configFile)
-    {
-        fprintf(stderr, "error: could not open the configuration file\n");
-        return;
-    }
+
     fprintf(stdout, "info: found the configuration file\n");
 
     // Parse the configuration file.
-    Bindings bindings = Bindings{};
     char* buffer = NULL;
     size_t length = 0;
     ssize_t result = -1;
@@ -247,6 +256,7 @@ void readConfiguration()
         KeyCodes keyCodes = KeyCodes{};
 
         // Read configurations
+        //std::cout << "Read configurations.\n";
         switch (section)
         {
             case configuration_device:
@@ -313,6 +323,8 @@ void readConfiguration()
     {
         free(buffer);
     }
+
+    return bindings;
 }
 
 /**

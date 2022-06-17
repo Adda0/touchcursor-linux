@@ -15,6 +15,6 @@ extern enum states state;
 /**
  * Processes a key input event. Converts and emits events as necessary.
  * */
-void processKey(int code, int type, int value);
+void processKey(Bindings& bindings, int code, int type, int value);
 
 #endif
