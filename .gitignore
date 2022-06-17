@@ -10,6 +10,7 @@ tests_include-b12d07c.cmake
 tests_tests-b12d07c.cmake
 test_sources_include-b12d07c.cmake
 tests
+!src/tests
 touchcursor_linux
 libtest_sources.a
 .cmake/api/v1
