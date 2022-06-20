@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <linux/input.h>
 #include <linux/uinput.h>
+#include <iostream>
 
 #include "queue.h"
 #include "keys.h"
@@ -14,12 +15,13 @@ enum states state = idle;
 // Flag if the hyper key has been emitted
 static int hyperEmitted;
 
+static THyperKey currentHyperKey{ 0 };
+
 /**
  * * Processes a key input event. Converts and emits events as necessary.
  * */
 void processKey(Bindings& bindings, int type, int code, int value)
 {
-    static THyperKey currentHyperKey{ 0 };
     printf("processKey(in): code=%i value=%i state=%i\n", code, value, state);
     switch (state)
     {
@@ -27,6 +29,7 @@ void processKey(Bindings& bindings, int type, int code, int value)
             {
                 if (bindings.hyperKeyExists(code) && isDown(value))
                 {
+                    std::cout << "Idle: Hyper key " << code << " pressed.\n";
                     state = hyper;
                     currentHyperKey = code;
                     hyperEmitted = 0;
@@ -40,15 +43,14 @@ void processKey(Bindings& bindings, int type, int code, int value)
             }
         case hyper: // 1
             {
-                if (bindings.hyperKeyExists(code))
-                {
-                    if (!isDown(value))
-                    {
+                if (bindings.hyperKeyExists(code)) {
+                    currentHyperKey = code;
+                    if (!isDown(value)) {
                         state = idle;
-                        if (!hyperEmitted)
-                        {
+                        if (!hyperEmitted) {
                             emit(EV_KEY, bindings.getMappedKeyForPermanentRemapping(code), 1);
                         }
+
                         emit(EV_KEY, bindings.getMappedKeyForPermanentRemapping(code), 0);
                     }
                 }
@@ -86,6 +88,7 @@ void processKey(Bindings& bindings, int type, int code, int value)
             {
                 if (bindings.hyperKeyExists(code))
                 {
+                    currentHyperKey = code;
                     if (!isDown(value))
                     {
                         state = idle;
@@ -134,6 +137,7 @@ void processKey(Bindings& bindings, int type, int code, int value)
             {
                 if (bindings.hyperKeyExists(code))
                 {
+                    currentHyperKey = code;
                     if (!isDown(value))
                     {
                         state = idle;

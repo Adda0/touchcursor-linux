@@ -40,12 +40,13 @@ TMappedKey &Bindings::getMappedKeyForHyperBinding(const THyperKey& hyperKey, con
     return originalKeyBinding->second;
 }
 
-TMappedKey &Bindings::getMappedKeyForPermanentRemapping(const TOriginalKey &originalKey) {
+TMappedKey Bindings::getMappedKeyForPermanentRemapping(const TOriginalKey &originalKey) {
     auto permanentRemapping = this->permanentRemappings.find(originalKey);
     if (permanentRemapping != this->permanentRemappings.end()) {
         return permanentRemapping->second;
     }
 
+    return originalKey;
     throw OriginalKeyNotFoundException();
 }
 
@@ -72,5 +73,15 @@ THyperKey Bindings::getHyperKeyForHyperName(const THyperName &hyperName) {
 
 bool Bindings::isMappedKeyForHyperBinding(THyperKey hyperKey, TOriginalKey originalKey) {
     auto hyperKeyBindings = this->hyperBindings.find(hyperKey)->second;
-    return hyperKeyBindings.find(originalKey) != hyperKeyBindings.end();
+
+    if (hyperKeyBindings.find(originalKey) == hyperKeyBindings.end()) {
+        auto commonHyperKeyBindings = this->commonHyperBindings.find(originalKey);
+        if (commonHyperKeyBindings == commonHyperBindings.end()) {
+            throw OriginalKeyNotFoundException();
+        }
+    }
+}
+
+bool Bindings::permanentRemappingExists(const TOriginalKey &originalKey) {
+    return this->permanentRemappings.find(originalKey) != this->permanentRemappings.end();
 }
