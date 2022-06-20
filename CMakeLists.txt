@@ -23,6 +23,7 @@ set(TEST_FILES
         src/tests/testKeyCodes.cc
         src/tests/testBindings.cc
         src/tests/testConfiguration.cc
+        src/tests/testEmit.cc
         ${SOURCE_FILES}
 )
 

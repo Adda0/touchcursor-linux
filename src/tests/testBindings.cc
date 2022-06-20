@@ -35,8 +35,8 @@ TEST_CASE("Access bindings map", "[bindings]") {
         bindings.addPermanentRemapping(originalKey, mappedKey);
         REQUIRE(bindings.getMappedKeyForPermanentRemapping(originalKey) == mappedKey);
 
-        SECTION("Look for nonexistent original key in permanent remappings") {
-            REQUIRE_THROWS_AS(bindings.getMappedKeyForPermanentRemapping(0), OriginalKeyNotFoundException);
-        }
+        //SECTION("Look for nonexistent original key in permanent remappings") {
+        //    REQUIRE_THROWS_AS(bindings.getMappedKeyForPermanentRemapping(0), OriginalKeyNotFoundException);
+        //}
     }
 }
