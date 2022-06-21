@@ -275,5 +275,11 @@ TEST_CASE("Emit events according to configuration", "[emit]") {
             type(bindings, 8, KEY_V, 1, KEY_J, 1, KEY_J, 0, KEY_V, 0);
             REQUIRE(expected == outputString);
         }
+
+        SECTION("V down, Space down, Space up, V up") {
+            expected = "105:1 105:0 ";
+            type(bindings, 8, KEY_V, 1, KEY_SPACE, 1, KEY_SPACE, 0, KEY_V, 0);
+            REQUIRE(expected == outputString);
+        }
     }
 }
