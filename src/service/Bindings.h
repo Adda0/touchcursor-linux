@@ -39,7 +39,7 @@ public:
     void addHyperMapping(const THyperKey& hyperKey, const TOriginalKey& originalKey, const TMappedKey& mappedKey);
     bool hyperKeyExists(const THyperKey& hyperKey);
     void resolveKeyPress(const TPressedKey& pressedKey);
-    TMappedKey& getMappedKeyForHyperBinding(const THyperKey& hyperKey, const TOriginalKey& originalKey);
+    TMappedKey getMappedKeyForHyperBinding(const THyperKey& hyperKey, const TOriginalKey& originalKey);
     TMappedKey getMappedKeyForPermanentRemapping(const TOriginalKey& originalKey);
     bool permanentRemappingExists(const TOriginalKey& originalKey);
     bool isMappedKeyForHyperBinding(THyperKey hyperKey, TOriginalKey originalKey);

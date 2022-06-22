@@ -26,8 +26,9 @@ TEST_CASE("Access bindings map", "[bindings]") {
         bindings.addHyperMapping(hyperKey, originalKey, mappedKey);
         REQUIRE(bindings.getMappedKeyForHyperBinding(hyperKey, originalKey) == mappedKey);
 
+        // TODO: Decide what to do when looking for an nonexistent key.
         SECTION("Look for nonexistent original key for an existing hyper key") {
-            REQUIRE_THROWS_AS(bindings.getMappedKeyForHyperBinding(hyperKey, 0), OriginalKeyNotFoundException);
+            REQUIRE(bindings.getMappedKeyForHyperBinding(hyperKey, 0) == 0);
         }
     }
 

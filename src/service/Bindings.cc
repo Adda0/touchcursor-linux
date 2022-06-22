@@ -26,13 +26,14 @@ void Bindings::resolveKeyPress(const TPressedKey& pressedKey) {
     // TODO.
 }
 
-TMappedKey &Bindings::getMappedKeyForHyperBinding(const THyperKey& hyperKey, const TOriginalKey& originalKey) {
+TMappedKey Bindings::getMappedKeyForHyperBinding(const THyperKey& hyperKey, const TOriginalKey& originalKey) {
     auto& hyperKeyBindings = this->hyperBindings.find(hyperKey)->second;
     //std::cout << "Empty: " << hyperKeyBindings.empty() << "\n";
     auto originalKeyBinding = hyperKeyBindings.find(originalKey);
     if (originalKeyBinding == hyperKeyBindings.end()) {
         originalKeyBinding = this->commonHyperBindings.find(originalKey);
         if (originalKeyBinding == this->commonHyperBindings.end()) {
+            return originalKey;
             throw OriginalKeyNotFoundException();
         }
     }
@@ -77,7 +78,8 @@ bool Bindings::isMappedKeyForHyperBinding(THyperKey hyperKey, TOriginalKey origi
     if (hyperKeyBindings.find(originalKey) == hyperKeyBindings.end()) {
         auto commonHyperKeyBindings = this->commonHyperBindings.find(originalKey);
         if (commonHyperKeyBindings == commonHyperBindings.end()) {
-            throw OriginalKeyNotFoundException();
+            return false;
+            //throw OriginalKeyNotFoundException();  // TODO: Is it better to throw an exception?
         }
     }
 }
