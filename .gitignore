@@ -16,3 +16,5 @@ libtest_sources.a
 .cmake/api/v1
 .idea
 Testing/Temporary
+
+Makefile
