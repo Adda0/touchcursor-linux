@@ -14,11 +14,6 @@
 char configFilePath[256];
 char eventPath[18];
 
-int hyperKey;
-int keymap[256];
-
-int remap[256];
-
 /**
  * @brief Trim comment from the end of the string started by '#' character.
  *
@@ -290,6 +285,7 @@ Bindings readConfiguration(const std::string& configPath)
                 }
             case configuration_bindings:
                 {
+                    // Switch between common and specific hyper key configurations.
                     std::string line_str = line;
                     if (line_str.starts_with("[")) {
                         line_str.erase(0, 1);
@@ -314,8 +310,8 @@ Bindings readConfiguration(const std::string& configPath)
                         std::cout << "Current hyper key: " << current_hyper_key << "\n";
                         bindings.addHyperMapping(bindings.getHyperKeyForHyperName(current_hyper_key), fromCode, toCode);
                         std::cout << "Added specific hyper key option.\n";
-                        break;
                     }
+                    break;
                 }
             case configuration_none:
             default:
@@ -324,11 +320,14 @@ Bindings readConfiguration(const std::string& configPath)
                 }
         }
     }
+
     fclose(configFile);
     if (buffer)
     {
         free(buffer);
     }
+
+    bindings.bindHyperNamesWithoutKeys();
 
     return bindings;
 }
