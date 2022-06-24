@@ -1,25 +1,9 @@
-//
-// Created by adda on 14.6.22.
-//
-
-#ifndef TOUCHCURSOR_LINUX_HYPERBINDING_H
-#define TOUCHCURSOR_LINUX_HYPERBINDING_H
+#ifndef BINDINGS_H
+#define BINDINGS_H
 
 #include <unordered_map>
 #include <string>
 #include <vector>
-
-class OriginalKeyNotFoundException: public std::exception {
-    [[nodiscard]] const char* what() const noexcept override {
-        return "Original key not found in bindings.";
-    }
-};
-
-class HyperKeyNotFoundException: public std::exception {
-    [[nodiscard]] const char* what() const noexcept override {
-        return "Hyper key for the given hyper key name not found in hyper key names map.";
-    }
-};
 
 class HyperNameWithoutKeyException: public std::exception {
     [[nodiscard]] const char* what() const noexcept override {
@@ -30,7 +14,6 @@ class HyperNameWithoutKeyException: public std::exception {
 using THyperKey = int;
 using TOriginalKey = int;
 using TMappedKey = int;
-using TPressedKey = int;
 using THyperName = std::string;
 using TKeyBindingMap = std::unordered_map<TOriginalKey, TMappedKey>;
 using THyperKeysMap = std::unordered_map<THyperKey, TKeyBindingMap>;
@@ -47,7 +30,6 @@ public:
     void addCommonHyperMapping(const TOriginalKey& originalKey, const TMappedKey& mappedKey);
     void addHyperMapping(const THyperKey& hyperKey, const TOriginalKey& originalKey, const TMappedKey& mappedKey);
     bool hyperKeyExists(const THyperKey& hyperKey);
-    void resolveKeyPress(const TPressedKey& pressedKey);
     TMappedKey getMappedKeyForHyperBinding(const THyperKey& hyperKey, const TOriginalKey& originalKey);
     TMappedKey getMappedKeyForPermanentRemapping(const TOriginalKey& originalKey);
     bool permanentRemappingExists(const TOriginalKey& originalKey);
@@ -63,4 +45,4 @@ private:
     THyperNamesWithoutKey hyperNamesWithoutKey;
 };
 
-#endif //TOUCHCURSOR_LINUX_HYPERBINDING_H
+#endif //BINDINGS_H

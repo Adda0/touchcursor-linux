@@ -1,5 +1,5 @@
-#ifndef TOUCHCURSOR_LINUX_KEYCODES_H
-#define TOUCHCURSOR_LINUX_KEYCODES_H
+#ifndef KEYCODES_H
+#define KEYCODES_H
 
 #include <linux/uinput.h>
 #include <unordered_map>
@@ -523,4 +523,4 @@ private:
 };
 
 
-#endif //TOUCHCURSOR_LINUX_KEYCODES_H
+#endif //KEYCODES_H

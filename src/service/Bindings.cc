@@ -1,7 +1,3 @@
-//
-// Created by adda on 14.6.22.
-//
-
 #include <iostream>
 
 #include "Bindings.h"
@@ -22,10 +18,6 @@ void Bindings::addPermanentRemapping(const TOriginalKey& originalKey, const TMap
     this->permanentRemappings.insert_or_assign(originalKey, mappedKey);
 }
 
-void Bindings::resolveKeyPress(const TPressedKey& pressedKey) {
-    // TODO.
-}
-
 TMappedKey Bindings::getMappedKeyForHyperBinding(const THyperKey& hyperKey, const TOriginalKey& originalKey) {
     auto& hyperKeyBindings = this->hyperBindings.find(hyperKey)->second;
     //std::cout << "Empty: " << hyperKeyBindings.empty() << "\n";
@@ -34,7 +26,6 @@ TMappedKey Bindings::getMappedKeyForHyperBinding(const THyperKey& hyperKey, cons
         originalKeyBinding = this->commonHyperBindings.find(originalKey);
         if (originalKeyBinding == this->commonHyperBindings.end()) {
             return originalKey;
-            throw OriginalKeyNotFoundException();
         }
     }
 
@@ -48,7 +39,6 @@ TMappedKey Bindings::getMappedKeyForPermanentRemapping(const TOriginalKey &origi
     }
 
     return originalKey;
-    throw OriginalKeyNotFoundException();
 }
 
 void Bindings::addCommonHyperMapping(const TOriginalKey &originalKey, const TMappedKey &mappedKey) {
@@ -89,9 +79,10 @@ bool Bindings::isMappedKeyForHyperBinding(THyperKey hyperKey, TOriginalKey origi
         auto commonHyperKeyBindings = this->commonHyperBindings.find(originalKey);
         if (commonHyperKeyBindings == commonHyperBindings.end()) {
             return false;
-            //throw OriginalKeyNotFoundException();  // TODO: Is it better to throw an exception?
         }
     }
+
+    return true;
 }
 
 bool Bindings::permanentRemappingExists(const TOriginalKey &originalKey) {

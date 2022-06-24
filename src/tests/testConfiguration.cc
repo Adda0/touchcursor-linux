@@ -63,7 +63,7 @@ TEST_CASE("Parse simple configuration file", "[config]") {
         TOriginalKey originalKeyRemap{ keyCodes.getKeyCodeFromKeyString("KEY_T") };
         TMappedKey mappedKeyRemap{ keyCodes.getKeyCodeFromKeyString("KEY_M") };
 
-        std::filesystem::path configPath = std::filesystem::current_path() / "src/tests/config_files/simple_config_remap.conf";
+        std::filesystem::path configPath{ std::filesystem::current_path() / "src/tests/config_files/simple_config_remap.conf" };
 
         auto bindings = readConfiguration(std::string{configPath});
 
@@ -80,7 +80,7 @@ TEST_CASE("Parse simple configuration file", "[config]") {
         TMappedKey mappedKeySpecificSpace{ keyCodes.getKeyCodeFromKeyString("KEY_P") };
         TMappedKey mappedKeyJ{ keyCodes.getKeyCodeFromKeyString("KEY_LEFT") };
 
-        std::filesystem::path configPath = std::filesystem::current_path() / "src/tests/config_files/config_reordered_tables.conf";
+        std::filesystem::path configPath{ std::filesystem::current_path() / "src/tests/config_files/config_reordered_tables.conf" };
 
         auto bindings = readConfiguration(std::string{configPath});
 
