@@ -35,23 +35,25 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY out)
 add_executable(touchcursor src/service/main.cc ${RELEASE_FILES})
 target_compile_features(touchcursor PUBLIC cxx_std_20)
 
-find_package(Catch2 3 REQUIRED)
-include(CTest)
-include(Catch)
+find_package(Catch2 3 QUIET)
+if (Catch2_FOUND)
+        include(CTest)
+        include(Catch)
 
-add_library(test_sources OBJECT ${TEST_FILES})
+        add_library(test_sources OBJECT ${TEST_FILES})
 
-# These tests can use the Catch2-provided main
-add_executable(tests src/tests/test.cc)
-target_compile_features(tests PUBLIC cxx_std_20)
-target_link_libraries(tests PUBLIC Catch2::Catch2WithMain)
-target_link_libraries(tests PUBLIC test_sources)
+        # These tests can use the Catch2-provided main
+        add_executable(tests src/tests/test.cc)
+        target_compile_features(tests PUBLIC cxx_std_20)
+        target_link_libraries(tests PUBLIC Catch2::Catch2WithMain)
+        target_link_libraries(tests PUBLIC test_sources)
 
-catch_discover_tests(tests)
+        catch_discover_tests(tests)
 
-# These tests need their own main
-#add_executable(custom-main-tests test.cpp test-main.cpp)
-#target_link_libraries(custom-main-tests PRIVATE Catch2::Catch2)
+        # These tests need their own main
+        #add_executable(custom-main-tests test.cpp test-main.cpp)
+        #target_link_libraries(custom-main-tests PRIVATE Catch2::Catch2)
+endif ()
 
 set(SERVICEPATH ~/.config/systemd/user)
 set(SERVICEFILE touchcursor.service)
@@ -61,7 +63,6 @@ set(TARGET touchcursor)
 set(OUTPATH ./out)
 set(INSTALLPATH /usr/bin)
 set(SERVICE touchcursor.service)
-
 
 add_custom_target(deploy
         COMMAND ${CMAKE_COMMAND} -E echo "Stopping the service."
