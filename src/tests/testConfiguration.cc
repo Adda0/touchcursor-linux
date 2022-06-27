@@ -100,4 +100,18 @@ TEST_CASE("Parse simple configuration file", "[config]") {
         REQUIRE(bindings.getMappedKeyForHyperBinding(hyperKeyV, originalKeyJ) == mappedKeyJ);
     }
 
+    SECTION("Parse config_files/reassign_key_configuration.conf") {
+        THyperKey hyperKeySpace{ keyCodes.getKeyCodeFromKeyString("KEY_SPACE") };
+        THyperKey hyperKeyV{ keyCodes.getKeyCodeFromKeyString("KEY_V") };
+
+        TMappedKey newMappedKeyForHyperSpace{ keyCodes.getKeyCodeFromKeyString("KEY_M") };
+        TMappedKey newMappedKeyForHyperV{ keyCodes.getKeyCodeFromKeyString("KEY_T") };
+
+        std::filesystem::path configPath = std::filesystem::current_path() / "src/tests/config_files/reassign_key_configuration.conf";
+
+        auto bindings = readConfiguration(std::string{configPath});
+
+        REQUIRE(bindings.getMappedKeyForHyperBinding(hyperKeySpace, originalKey) == newMappedKeyForHyperSpace);
+        REQUIRE(bindings.getMappedKeyForHyperBinding(hyperKeyV, originalKey) == newMappedKeyForHyperV);
+    }
 }
