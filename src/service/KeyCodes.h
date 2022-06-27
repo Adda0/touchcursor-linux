@@ -522,5 +522,4 @@ private:
 
 };
 
-
 #endif //KEYCODES_H
