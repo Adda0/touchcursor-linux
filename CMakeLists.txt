@@ -14,8 +14,6 @@ set(SOURCE_FILES
         src/service/keys.h
         src/service/mapper.cc
         src/service/mapper.h
-        src/service/queue.cc
-        src/service/queue.h
         src/service/Bindings.cc
         src/service/Bindings.h)
 

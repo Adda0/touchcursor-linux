@@ -23,6 +23,7 @@
 class KeyCodes {
 public:
     KeyCodes() = default;
+
     int getKeyCodeFromKeyString(const std::string& keyString);
 
 private:

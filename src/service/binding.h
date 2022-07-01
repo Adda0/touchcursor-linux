@@ -18,7 +18,7 @@ extern int input;
 /**
  * Binds to the input device using ioctl.
  * */
-int bindInput(char* fileDescriptor);
+int bindInput(char *fileDescriptor);
 
 extern int output;
 

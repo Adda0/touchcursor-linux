@@ -2,8 +2,7 @@
 #define mapper_h
 
 // The state machine states
-enum states
-{
+enum states {
     idle,
     hyper,
     delay,
@@ -15,6 +14,6 @@ extern enum states state;
 /**
  * Processes a key input event. Converts and emits events as necessary.
  * */
-void processKey(Config& config, int type, int code, int value);
+void processKey(Config &config, int type, int code, int value);
 
 #endif

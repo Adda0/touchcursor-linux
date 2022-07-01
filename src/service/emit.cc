@@ -8,8 +8,7 @@
 /**
  * Emits a key event.
  * */
-int emit(int type, int code, int value)
-{
+int emit(int type, int code, int value) {
     struct input_event e{};
     e.time.tv_sec = 0;
     e.time.tv_usec = 0;
@@ -24,5 +23,5 @@ int emit(int type, int code, int value)
     e.value = 0;
     write(output, &e, sizeof(e));
 
-   return 0;
+    return 0;
 }

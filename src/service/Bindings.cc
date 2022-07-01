@@ -2,24 +2,25 @@
 
 #include "Bindings.h"
 
-void Bindings::addHyperMapping(const THyperKey& hyperKey, const TOriginalKey& originalKey, const TMappedKey& mappedKey) {
-    auto& keyBindingMap = this->addHyperKey(hyperKey);
+void
+Bindings::addHyperMapping(const THyperKey &hyperKey, const TOriginalKey &originalKey, const TMappedKey &mappedKey) {
+    auto &keyBindingMap = this->addHyperKey(hyperKey);
 
     keyBindingMap.insert_or_assign(originalKey, mappedKey);
     //std::cout << "After insertion: " << keyBindingMap.find(originalKey)->second << "\n";
     //std::cout << "With method: " << this->getMappedKeyForHyperBinding(hyperKey, originalKey) << "\n";
 }
 
-bool Bindings::hyperKeyExists(const THyperKey& hyperKey) {
+bool Bindings::hyperKeyExists(const THyperKey &hyperKey) {
     return this->hyperBindings.find(hyperKey) != this->hyperBindings.end();
 }
 
-void Bindings::addPermanentRemapping(const TOriginalKey& originalKey, const TMappedKey& mappedKey) {
+void Bindings::addPermanentRemapping(const TOriginalKey &originalKey, const TMappedKey &mappedKey) {
     this->permanentRemappings.insert_or_assign(originalKey, mappedKey);
 }
 
-TMappedKey Bindings::getMappedKeyForHyperBinding(const THyperKey& hyperKey, const TOriginalKey& originalKey) {
-    auto& hyperKeyBindings = this->hyperBindings.find(hyperKey)->second;
+TMappedKey Bindings::getMappedKeyForHyperBinding(const THyperKey &hyperKey, const TOriginalKey &originalKey) {
+    auto &hyperKeyBindings = this->hyperBindings.find(hyperKey)->second;
     //std::cout << "Empty: " << hyperKeyBindings.empty() << "\n";
     auto originalKeyBinding = hyperKeyBindings.find(originalKey);
     if (originalKeyBinding == hyperKeyBindings.end()) {
@@ -45,8 +46,8 @@ void Bindings::addCommonHyperMapping(const TOriginalKey &originalKey, const TMap
     this->commonHyperBindings.insert_or_assign(originalKey, mappedKey);
 }
 
-TKeyBindingMap& Bindings::addHyperKey(const THyperKey &hyperKey) {
-    auto hyperKeyMap{ this->hyperBindings.find(hyperKey) };
+TKeyBindingMap &Bindings::addHyperKey(const THyperKey &hyperKey) {
+    auto hyperKeyMap{this->hyperBindings.find(hyperKey)};
     if (hyperKeyMap != this->hyperBindings.end()) {
         return hyperKeyMap->second;
     }
@@ -54,17 +55,17 @@ TKeyBindingMap& Bindings::addHyperKey(const THyperKey &hyperKey) {
     return this->hyperBindings.insert({hyperKey, TKeyBindingMap{}}).first->second;
 }
 
-void Bindings::addHyperName(const THyperName& hyperName, const THyperKey& hyperKey) {
+void Bindings::addHyperName(const THyperName &hyperName, const THyperKey &hyperKey) {
     this->hyperNamesMap.insert_or_assign(hyperName, hyperKey);
 }
 
-THyperKey Bindings::addHyperNameWithoutHyperKey(const THyperName& hyperName) {
+THyperKey Bindings::addHyperNameWithoutHyperKey(const THyperName &hyperName) {
     this->hyperNamesWithoutKey.push_back(hyperName);
     return std::hash<std::string>{}(hyperName);
 }
 
 THyperKey Bindings::getHyperKeyForHyperName(const THyperName &hyperName) {
-    auto hyperKey { this->hyperNamesMap.find(hyperName) };
+    auto hyperKey{this->hyperNamesMap.find(hyperName)};
     if (hyperKey != this->hyperNamesMap.end()) {
         return hyperKey->second;
     }
@@ -73,7 +74,7 @@ THyperKey Bindings::getHyperKeyForHyperName(const THyperName &hyperName) {
 }
 
 bool Bindings::isMappedKeyForHyperBinding(THyperKey hyperKey, TOriginalKey originalKey) {
-    auto hyperKeyBindings{ this->hyperBindings.find(hyperKey)->second };
+    auto hyperKeyBindings{this->hyperBindings.find(hyperKey)->second};
 
     if (hyperKeyBindings.find(originalKey) == hyperKeyBindings.end()) {
         if (hyperKey == originalKey) {
@@ -98,13 +99,13 @@ bool Bindings::isHyperNamesWithoutKeyEmpty() {
 }
 
 void Bindings::bindHyperNamesWithoutKeys() {
-    for (auto hyperNameWithoutKey : this->hyperNamesWithoutKey) {
-        auto hyperNameKey{ this->hyperNamesMap.find(hyperNameWithoutKey) };
+    for (auto hyperNameWithoutKey: this->hyperNamesWithoutKey) {
+        auto hyperNameKey{this->hyperNamesMap.find(hyperNameWithoutKey)};
         if (hyperNameKey != this->hyperNamesMap.end()) {
             THyperKey defaultHyperNameKey = std::hash<std::string>{}(hyperNameWithoutKey);
-            auto hyperBindings{ this->hyperBindings.find(defaultHyperNameKey) };
+            auto hyperBindings{this->hyperBindings.find(defaultHyperNameKey)};
             if (hyperBindings != this->hyperBindings.end()) {
-                auto hyperBindingsStruct { this->hyperBindings.extract(defaultHyperNameKey).mapped() };
+                auto hyperBindingsStruct{this->hyperBindings.extract(defaultHyperNameKey).mapped()};
                 this->hyperBindings.insert_or_assign(hyperNameKey->second, hyperBindingsStruct);
             }
         } else {

@@ -11,7 +11,9 @@ extern char eventPath[18];
 class Config {
 public:
     Bindings bindings{};
+
     bool isDebugMode() { return debugMode; }
+
     void setDebugMode() { debugMode = true; }
 
     /**
@@ -19,10 +21,10 @@ public:
      * @param configPath Path to the configuration file.
      * @return Config object configurad from given configuration file.
      */
-    static Config fromConfigFile(const std::string& configPath = "");
+    static Config fromConfigFile(const std::string &configPath = "");
 
 private:
-    bool debugMode{ false };
+    bool debugMode{false};
 };
 
 #endif
