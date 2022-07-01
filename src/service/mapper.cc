@@ -43,18 +43,7 @@ void processKey(Config& config, int type, int code, int value)
             }
         case hyper: // 1
             {
-                if (config.bindings.hyperKeyExists(code)) {
-                    currentHyperKey = code;
-                    if (!isDown(value)) {
-                        state = idle;
-                        if (!hyperEmitted) {
-                            emit(type, config.bindings.getMappedKeyForPermanentRemapping(code), 1);
-                        }
-
-                        emit(type, config.bindings.getMappedKeyForPermanentRemapping(code), 0);
-                    }
-                }
-                else if (config.bindings.isMappedKeyForHyperBinding(currentHyperKey, code))
+                if (config.bindings.isMappedKeyForHyperBinding(currentHyperKey, code))
                 {
                     if (isDown(value))
                     {
@@ -64,6 +53,17 @@ void processKey(Config& config, int type, int code, int value)
                     else
                     {
                         emit(type, config.bindings.getMappedKeyForPermanentRemapping(code), value);
+                    }
+                }
+                else if (config.bindings.hyperKeyExists(code)) {
+                    currentHyperKey = code;
+                    if (!isDown(value)) {
+                        state = idle;
+                        if (!hyperEmitted) {
+                            emit(type, config.bindings.getMappedKeyForPermanentRemapping(code), 1);
+                        }
+
+                        emit(type, config.bindings.getMappedKeyForPermanentRemapping(code), 0);
                     }
                 }
                 else
@@ -86,25 +86,7 @@ void processKey(Config& config, int type, int code, int value)
             }
         case delay: // 2
             {
-                if (config.bindings.hyperKeyExists(code))
-                {
-                    currentHyperKey = code;
-                    if (!isDown(value))
-                    {
-                        state = idle;
-                        if (!hyperEmitted)
-                        {
-                            emit(type, config.bindings.getMappedKeyForPermanentRemapping(currentHyperKey), 1);
-                        }
-                        int length = lengthOfQueue();
-                        for (int i = 0; i < length; i++)
-                        {
-                            emit(type, config.bindings.getMappedKeyForPermanentRemapping(dequeue()), 1);
-                        }
-                        emit(type, config.bindings.getMappedKeyForPermanentRemapping(currentHyperKey), 0);
-                    }
-                }
-                else if (config.bindings.isMappedKeyForHyperBinding(currentHyperKey, code))
+                if (config.bindings.isMappedKeyForHyperBinding(currentHyperKey, code))
                 {
                     state = map;
                     if (isDown(value))
@@ -126,6 +108,24 @@ void processKey(Config& config, int type, int code, int value)
                         emit(type, config.bindings.getMappedKeyForHyperBinding(currentHyperKey, code), value);
                     }
                 }
+                else if (config.bindings.hyperKeyExists(code))
+                {
+                    currentHyperKey = code;
+                    if (!isDown(value))
+                    {
+                        state = idle;
+                        if (!hyperEmitted)
+                        {
+                            emit(type, config.bindings.getMappedKeyForPermanentRemapping(currentHyperKey), 1);
+                        }
+                        int length = lengthOfQueue();
+                        for (int i = 0; i < length; i++)
+                        {
+                            emit(type, config.bindings.getMappedKeyForPermanentRemapping(dequeue()), 1);
+                        }
+                        emit(type, config.bindings.getMappedKeyForPermanentRemapping(currentHyperKey), 0);
+                    }
+                }
                 else
                 {
                     state = map;
@@ -135,7 +135,19 @@ void processKey(Config& config, int type, int code, int value)
             }
         case map: // 3
             {
-                if (config.bindings.hyperKeyExists(code))
+                if (config.bindings.isMappedKeyForHyperBinding(currentHyperKey, code))
+                {
+                    if (isDown(value))
+                    {
+                        enqueue(code);
+                        emit(type, config.bindings.getMappedKeyForHyperBinding(currentHyperKey, code), value);
+                    }
+                    else
+                    {
+                        emit(type, config.bindings.getMappedKeyForHyperBinding(currentHyperKey, code), value);
+                    }
+                }
+                else if (config.bindings.hyperKeyExists(code))
                 {
                     currentHyperKey = code;
                     if (!isDown(value))
@@ -146,18 +158,6 @@ void processKey(Config& config, int type, int code, int value)
                         {
                             emit(type, config.bindings.getMappedKeyForHyperBinding(currentHyperKey, dequeue()), 0);
                         }
-                    }
-                }
-                else if (config.bindings.isMappedKeyForHyperBinding(currentHyperKey, code))
-                {
-                    if (isDown(value))
-                    {
-                        enqueue(code);
-                        emit(type, config.bindings.getMappedKeyForHyperBinding(currentHyperKey, code), value);
-                    }
-                    else
-                    {
-                        emit(type, config.bindings.getMappedKeyForHyperBinding(currentHyperKey, code), value);
                     }
                 }
                 else

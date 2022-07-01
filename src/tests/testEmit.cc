@@ -108,12 +108,38 @@ TEST_CASE("Emit events according to configuration", "[emit]") {
                 REQUIRE(expected == outputString);
             }
 
+            // TODO: Should we get 105:0 two times at the end?
+            SECTION("V down, Mapped down, up, Mapped down, up, V up") {
+                expected = "105:1 105:0 105:1 105:0 105:0 ";
+                type(config, 12, KEY_V, 1, KEY_J, 1, KEY_J, 0, KEY_J, 1, KEY_J, 0, KEY_V, 0);
+                REQUIRE(expected == outputString);
+            }
+
             // TODO: Correctly set what to expect.
-            //SECTION("V down, Space down, Space up, V up") {
-            //    expected = "105:1 105:0 ";
-            //    type(config, 8, KEY_V, 1, KEY_SPACE, 1, KEY_SPACE, 0, KEY_V, 0);
-            //    REQUIRE(expected == outputString);
-            //}
+            SECTION("V down, Space down, Space up, V up") {
+                expected = "57:1 57:0 47:0 ";
+                type(config, 8, KEY_V, 1, KEY_SPACE, 1, KEY_SPACE, 0, KEY_V, 0);
+                REQUIRE(expected == outputString);
+            }
+
+            SECTION("Space down, V down, V up, Space up") {
+                expected = "45:1 45:0 ";
+                type(config, 8, KEY_SPACE, 1, KEY_V, 1, KEY_V, 0, KEY_SPACE, 0);
+                REQUIRE(expected == outputString);
+            }
+
+            // TODO: Should we get 45:0 two times at the end?
+            SECTION("Space down, V down, V up, V down, V up, Space up") {
+                expected = "45:1 45:0 45:1 45:0 45:0 ";
+                type(config, 12, KEY_SPACE, 1, KEY_V, 1, KEY_V, 0, KEY_V, 1, KEY_V, 0, KEY_SPACE, 0);
+                REQUIRE(expected == outputString);
+            }
+
+            SECTION("Shift down, V down, V up, Shift up") {
+                expected = "42:1 47:1 47:0 42:0 ";
+                type(config, 8, KEY_LEFTSHIFT, 1, KEY_V, 1, KEY_V, 0, KEY_LEFTSHIFT, 0);
+                REQUIRE(expected == outputString);
+            }
         }
 
         SECTION("Fast typing with overlapping key events") {
