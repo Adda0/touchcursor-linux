@@ -12,13 +12,13 @@
  * */
 void processKey(Config& config, int type, int code, int value)
 {
-    // The state machine state
+    // The state machine state.
     static enum states state = idle;
 
     static THyperKey currentHyperKey{ 0 };
 
-    // Flag if the hyper key has been emitted
-    static int hyperEmitted;
+    // Flag if the hyper key has been emitted.
+    static bool hyperEmitted;
 
     printf("processKey(in): code=%i value=%i state=%i\n", code, value, state);
     switch (state)
@@ -30,7 +30,7 @@ void processKey(Config& config, int type, int code, int value)
                     std::cout << "Idle: Hyper key " << code << " pressed.\n";
                     state = hyper;
                     currentHyperKey = code;
-                    hyperEmitted = 0;
+                    hyperEmitted = false;
                     clearQueue();
                 }
                 else
@@ -71,7 +71,7 @@ void processKey(Config& config, int type, int code, int value)
                         if (!hyperEmitted)
                         {
                             emit(type, config.bindings.getMappedKeyForPermanentRemapping(currentHyperKey), 1);
-                            hyperEmitted = 1;
+                            hyperEmitted = true;
                         }
                         emit(type, config.bindings.getMappedKeyForPermanentRemapping(code), value);
                     }
