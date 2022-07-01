@@ -76,6 +76,10 @@ bool Bindings::isMappedKeyForHyperBinding(THyperKey hyperKey, TOriginalKey origi
     auto hyperKeyBindings{ this->hyperBindings.find(hyperKey)->second };
 
     if (hyperKeyBindings.find(originalKey) == hyperKeyBindings.end()) {
+        if (hyperKey == originalKey) {
+            return false;
+        }
+
         auto commonHyperKeyBindings = this->commonHyperBindings.find(originalKey);
         if (commonHyperKeyBindings == commonHyperBindings.end()) {
             return false;
