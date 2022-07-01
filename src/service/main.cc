@@ -5,7 +5,7 @@
 #include <errno.h>
 #include <linux/input.h>
 
-#include "config.h"
+#include "Config.h"
 #include "binding.h"
 #include "emit.h"
 #include "mapper.h"
@@ -15,7 +15,7 @@
 * */
 int main(int argc, char* argv[])
 {
-    Bindings bindings = readConfiguration();
+    Config config { Config::fromConfigFile() };
     if (eventPath[0] == '\0')
     {
         fprintf(stderr, "error: please specify the keyboard device name in the configuration file\n");
@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
         if (inputEvent.type == EV_KEY
             && (inputEvent.value == 0 || inputEvent.value == 1 || inputEvent.value == 2))
         {
-            processKey(bindings, inputEvent.type, inputEvent.code, inputEvent.value);
+            processKey(config, inputEvent.type, inputEvent.code, inputEvent.value);
         }
         else
         {

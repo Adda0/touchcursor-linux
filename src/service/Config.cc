@@ -6,11 +6,10 @@
 #include <ranges>
 #include <iostream>
 
-#include "config.h"
+#include "Config.h"
 #include "KeyCodes.h"
 #include "Bindings.h"
 
-char configFilePath[256];
 char eventPath[18];
 
 /**
@@ -99,8 +98,8 @@ void findDeviceEvent(char* deviceConfigValue)
     fprintf(stdout, "info: deviceName: %s\n", deviceName);
     fprintf(stdout, "info: deviceNumber: %i\n", deviceNumber);
 
-    char* devicesFilePath = "/proc/bus/input/devices";
-    FILE* devicesFile = fopen(devicesFilePath, "r");
+    std::string devicesFilePath { "/proc/bus/input/devices" };
+    FILE* devicesFile = fopen(devicesFilePath.c_str(), "r");
     if (!devicesFile)
     {
         fprintf(stderr, "error: could not open /proc/bus/input/devices\n");
@@ -169,39 +168,54 @@ static enum sections
 } section;
 
 /**
- * Reads the configuration file.
- * */
-Bindings readConfiguration(const std::string& configPath)
-{
-    Bindings bindings = Bindings{};
+ * Helper method to print existing keyboard devices.
+ * Does not work for bluetooth keyboards.
+ */
+// Need to revisit this
+// void printKeyboardDevices()
+// {
+//     DIR* directoryStream = opendir("/dev/input/");
+//     if (!directoryStream)
+//     {
+//         printf("error: could not open /dev/input/\n");
+//         return; //EXIT_FAILURE;
+//     }
+//     fprintf(stdout, "suggestion: use any of the following in the configuration file for this application:\n");
+//     struct dirent* directory = NULL;
+//     while ((directory = readdir(directoryStream)))
+//     {
+//         if (strstr(directory->d_name, "kbd"))
+//         {
+//             printf ("keyboard=/dev/input/by-id/%s\n", directory->d_name);
+//         }
+//     }
+// }
 
-    // Find the configuration file
+Config Config::fromConfigFile(const std::string& configPath) {
+    char configFilePath[256];
+    // Find the configuration file.
     configFilePath[0] = '\0';
     FILE* configFile;
 
     if (configPath.empty()) {
         char* homePath = getenv("HOME");
-        if (!homePath)
-        {
+        if (!homePath) {
             fprintf(stderr, "error: home path environment variable not specified\n");
         }
-        if (homePath)
-        {
+        if (homePath) {
             strcat(configFilePath, homePath);
             strcat(configFilePath, "/.config/touchcursor/touchcursor.conf");
             fprintf(stdout, "info: looking for the configuration file at: %s\n", configFilePath);
             configFile = fopen(configFilePath, "r");
         }
-        if (!configFile)
-        {
+        if (!configFile) {
             strcpy(configFilePath, "/etc/touchcursor/touchcursor.conf");
             fprintf(stdout, "info: looking for the configuration file at: %s\n", configFilePath);
             configFile = fopen(configFilePath, "r");
         }
-        if (!configFile)
-        {
+        if (!configFile) {
             fprintf(stderr, "error: could not open the configuration file\n");
-            return bindings;
+            return Config{};
         }
     } else {
         fprintf(stdout, "info: looking for the configuration file at: %s\n", configPath.c_str());
@@ -211,6 +225,7 @@ Bindings readConfiguration(const std::string& configPath)
     fprintf(stdout, "info: found the configuration file\n");
 
     // Parse the configuration file.
+    Config config{};
     char* buffer = NULL;
     size_t length = 0;
     ssize_t result = -1;
@@ -254,69 +269,69 @@ Bindings readConfiguration(const std::string& configPath)
         switch (section)
         {
             case configuration_device:
+            {
+                if (eventPath[0] == '\0')
                 {
-                    if (eventPath[0] == '\0')
-                    {
-                        findDeviceEvent(line);
-                    }
-                    continue;
+                    findDeviceEvent(line);
                 }
+                continue;
+            }
             case configuration_remap:
-                {
-                    char* tokens = line;
-                    char* token = strsep(&tokens, "=");
-                    int fromCode = keyCodes.getKeyCodeFromKeyString(token);
-                    token = strsep(&tokens, "=");
-                    int toCode = keyCodes.getKeyCodeFromKeyString(token);
-                    bindings.addPermanentRemapping(fromCode, toCode);
-                    break;
-                }
+            {
+                char* tokens = line;
+                char* token = strsep(&tokens, "=");
+                int fromCode = keyCodes.getKeyCodeFromKeyString(token);
+                token = strsep(&tokens, "=");
+                int toCode = keyCodes.getKeyCodeFromKeyString(token);
+                config.bindings.addPermanentRemapping(fromCode, toCode);
+                break;
+            }
             case configuration_hyper:
-                {
-                    char* tokens = line;
-                    char* hyperKeyName = strsep(&tokens, "=");
-                    char* token = strsep(&tokens, "=");
-                    int code = keyCodes.getKeyCodeFromKeyString(token);
+            {
+                char* tokens = line;
+                char* hyperKeyName = strsep(&tokens, "=");
+                char* token = strsep(&tokens, "=");
+                int code = keyCodes.getKeyCodeFromKeyString(token);
 
-                    bindings.addHyperName(hyperKeyName, code);
-                    bindings.addHyperKey(code);
-                    break;
-                }
+                config.bindings.addHyperName(hyperKeyName, code);
+                config.bindings.addHyperKey(code);
+                break;
+            }
             case configuration_bindings:
-                {
-                    // Switch between common and specific hyper key configurations.
-                    std::string line_str = line;
-                    if (line_str.starts_with("[")) {
-                        line_str.erase(0, 1);
-                        line_str.erase(line_str.length() - 1);
-                        line_str.erase(0, line_str.find_last_of('.') + 1);
-                        current_hyper_key = line_str;
-                        break;
-                    }
-
-                    char* token = strsep(&line, "=");
-                    int fromCode = keyCodes.getKeyCodeFromKeyString(token);
-                    token = strsep(&line, "=");
-                    int toCode = keyCodes.getKeyCodeFromKeyString(token);
-
-                    std::cout << "Current Hyper key empty: " << current_hyper_key.empty() << "\n";
-
-                    if (current_hyper_key.empty()) {
-                        std:: cout << "Adding common hyper key mapping.\n";
-                        bindings.addCommonHyperMapping(fromCode, toCode);
-                        //std::cout << bindings.getMappedKeyForHyperBinding(hyperKey, fromCode) << "\n";
-                    } else {
-                        std::cout << "Current hyper key: " << current_hyper_key << "\n";
-                        bindings.addHyperMapping(bindings.getHyperKeyForHyperName(current_hyper_key), fromCode, toCode);
-                        std::cout << "Added specific hyper key option.\n";
-                    }
+            {
+                // Switch between common and specific hyper key configurations.
+                std::string line_str = line;
+                if (line_str.starts_with("[")) {
+                    line_str.erase(0, 1);
+                    line_str.erase(line_str.length() - 1);
+                    line_str.erase(0, line_str.find_last_of('.') + 1);
+                    current_hyper_key = line_str;
                     break;
                 }
+
+                char* token = strsep(&line, "=");
+                int fromCode = keyCodes.getKeyCodeFromKeyString(token);
+                token = strsep(&line, "=");
+                int toCode = keyCodes.getKeyCodeFromKeyString(token);
+
+                std::cout << "Current Hyper key empty: " << current_hyper_key.empty() << "\n";
+
+                if (current_hyper_key.empty()) {
+                    std:: cout << "Adding common hyper key mapping.\n";
+                    config.bindings.addCommonHyperMapping(fromCode, toCode);
+                    //std::cout << config.bindings.getMappedKeyForHyperBinding(hyperKey, fromCode) << "\n";
+                } else {
+                    std::cout << "Current hyper key: " << current_hyper_key << "\n";
+                    config.bindings.addHyperMapping(config.bindings.getHyperKeyForHyperName(current_hyper_key), fromCode, toCode);
+                    std::cout << "Added specific hyper key option.\n";
+                }
+                break;
+            }
             case configuration_none:
             default:
-                {
-                    continue;
-                }
+            {
+                continue;
+            }
         }
     }
 
@@ -326,31 +341,7 @@ Bindings readConfiguration(const std::string& configPath)
         free(buffer);
     }
 
-    bindings.bindHyperNamesWithoutKeys();
+    config.bindings.bindHyperNamesWithoutKeys();
 
-    return bindings;
+    return config;
 }
-
-/**
- * Helper method to print existing keyboard devices.
- * Does not work for bluetooth keyboards.
- */
-// Need to revisit this
-// void printKeyboardDevices()
-// {
-//     DIR* directoryStream = opendir("/dev/input/");
-//     if (!directoryStream)
-//     {
-//         printf("error: could not open /dev/input/\n");
-//         return; //EXIT_FAILURE;
-//     }
-//     fprintf(stdout, "suggestion: use any of the following in the configuration file for this application:\n");
-//     struct dirent* directory = NULL;
-//     while ((directory = readdir(directoryStream)))
-//     {
-//         if (strstr(directory->d_name, "kbd"))
-//         {
-//             printf ("keyboard=/dev/input/by-id/%s\n", directory->d_name);
-//         }
-//     }
-// }

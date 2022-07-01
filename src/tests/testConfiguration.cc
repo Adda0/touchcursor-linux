@@ -5,7 +5,7 @@
 
 #include "../service/Bindings.h"
 #include "../service/KeyCodes.h"
-#include "../service/config.h"
+#include "../service/Config.h"
 
 TEST_CASE("Parse simple configuration file", "[config]") {
     KeyCodes keyCodes = KeyCodes{};
@@ -17,10 +17,10 @@ TEST_CASE("Parse simple configuration file", "[config]") {
         THyperKey hyperKey{ keyCodes.getKeyCodeFromKeyString("KEY_SPACE") };
         std::filesystem::path configPath = std::filesystem::current_path() / "src/tests/config_files/simple_config.conf";
 
-        auto bindings = readConfiguration(std::string{configPath});
+        Config config{ Config::fromConfigFile(std::string{configPath}) };
 
-        REQUIRE(bindings.hyperKeyExists(hyperKey));
-        REQUIRE(bindings.getMappedKeyForHyperBinding(hyperKey, originalKey) == mappedKey);
+        REQUIRE(config.bindings.hyperKeyExists(hyperKey));
+        REQUIRE(config.bindings.getMappedKeyForHyperBinding(hyperKey, originalKey) == mappedKey);
     }
 
     SECTION("Parse config_files/simple_config_multiple_hyper_keys.conf") {
@@ -35,28 +35,28 @@ TEST_CASE("Parse simple configuration file", "[config]") {
 
         std::filesystem::path configPath = std::filesystem::current_path() / "src/tests/config_files/simple_config_multiple_hyper_keys.conf";
 
-        auto bindings = readConfiguration(std::string{configPath});
+        Config config{ Config::fromConfigFile(std::string{configPath}) };
 
-        REQUIRE(bindings.hyperKeyExists(hyperKeySpace));
-        REQUIRE(bindings.hyperKeyExists(hyperKeyV));
-        REQUIRE(bindings.isMappedKeyForHyperBinding(hyperKeyV, originalKey));
-        REQUIRE(bindings.isMappedKeyForHyperBinding(hyperKeySpace, originalKey));
-        REQUIRE(bindings.isMappedKeyForHyperBinding(hyperKeyV, originalKeyJ));
-        REQUIRE(bindings.isMappedKeyForHyperBinding(hyperKeySpace, originalKeyJ));
-        REQUIRE(bindings.isMappedKeyForHyperBinding(hyperKeyV, originalKeySpecific));
-        REQUIRE(bindings.isMappedKeyForHyperBinding(hyperKeySpace, originalKeySpecific));
-        REQUIRE(bindings.getMappedKeyForHyperBinding(hyperKeySpace, originalKey) == mappedKey);
-        REQUIRE(bindings.getMappedKeyForHyperBinding(hyperKeyV, originalKey) == mappedKey);
-        REQUIRE(bindings.getMappedKeyForHyperBinding(hyperKeyV, originalKeySpecific) == mappedKeySpecific);
-        REQUIRE(bindings.getMappedKeyForHyperBinding(hyperKeySpace, originalKeySpecific) == mappedKeySpecificSpace);
-        REQUIRE(bindings.getMappedKeyForHyperBinding(hyperKeySpace, originalKeyJ) == mappedKeyJ);
-        REQUIRE(bindings.getMappedKeyForHyperBinding(hyperKeyV, originalKeyJ) == mappedKeyJ);
+        REQUIRE(config.bindings.hyperKeyExists(hyperKeySpace));
+        REQUIRE(config.bindings.hyperKeyExists(hyperKeyV));
+        REQUIRE(config.bindings.isMappedKeyForHyperBinding(hyperKeyV, originalKey));
+        REQUIRE(config.bindings.isMappedKeyForHyperBinding(hyperKeySpace, originalKey));
+        REQUIRE(config.bindings.isMappedKeyForHyperBinding(hyperKeyV, originalKeyJ));
+        REQUIRE(config.bindings.isMappedKeyForHyperBinding(hyperKeySpace, originalKeyJ));
+        REQUIRE(config.bindings.isMappedKeyForHyperBinding(hyperKeyV, originalKeySpecific));
+        REQUIRE(config.bindings.isMappedKeyForHyperBinding(hyperKeySpace, originalKeySpecific));
+        REQUIRE(config.bindings.getMappedKeyForHyperBinding(hyperKeySpace, originalKey) == mappedKey);
+        REQUIRE(config.bindings.getMappedKeyForHyperBinding(hyperKeyV, originalKey) == mappedKey);
+        REQUIRE(config.bindings.getMappedKeyForHyperBinding(hyperKeyV, originalKeySpecific) == mappedKeySpecific);
+        REQUIRE(config.bindings.getMappedKeyForHyperBinding(hyperKeySpace, originalKeySpecific) == mappedKeySpecificSpace);
+        REQUIRE(config.bindings.getMappedKeyForHyperBinding(hyperKeySpace, originalKeyJ) == mappedKeyJ);
+        REQUIRE(config.bindings.getMappedKeyForHyperBinding(hyperKeyV, originalKeyJ) == mappedKeyJ);
     }
 
     SECTION("Parse config_files/simple_config_only_specific_hyper_key.conf") {
         std::filesystem::path configPath = std::filesystem::current_path() / "src/tests/config_files/simple_config_only_specific_hyper_key.conf";
 
-        REQUIRE_THROWS_AS(readConfiguration(std::string{configPath}), HyperNameWithoutKeyException);
+        REQUIRE_THROWS_AS(Config::fromConfigFile(std::string{configPath}), HyperNameWithoutKeyException);
     }
 
     SECTION("Parse config_files/simple_config_remap.conf") {
@@ -65,9 +65,9 @@ TEST_CASE("Parse simple configuration file", "[config]") {
 
         std::filesystem::path configPath{ std::filesystem::current_path() / "src/tests/config_files/simple_config_remap.conf" };
 
-        auto bindings = readConfiguration(std::string{configPath});
+        Config config{ Config::fromConfigFile(std::string{configPath}) };
 
-        REQUIRE(bindings.getMappedKeyForPermanentRemapping(originalKeyRemap) == mappedKeyRemap);
+        REQUIRE(config.bindings.getMappedKeyForPermanentRemapping(originalKeyRemap) == mappedKeyRemap);
     }
 
     SECTION("Parse config_files/config_reordered_tables.conf") {
@@ -82,22 +82,22 @@ TEST_CASE("Parse simple configuration file", "[config]") {
 
         std::filesystem::path configPath{ std::filesystem::current_path() / "src/tests/config_files/config_reordered_tables.conf" };
 
-        auto bindings = readConfiguration(std::string{configPath});
+        Config config{ Config::fromConfigFile(std::string{configPath}) };
 
-        REQUIRE(bindings.hyperKeyExists(hyperKeySpace));
-        REQUIRE(bindings.hyperKeyExists(hyperKeyV));
-        REQUIRE(bindings.isMappedKeyForHyperBinding(hyperKeyV, originalKey));
-        REQUIRE(bindings.isMappedKeyForHyperBinding(hyperKeySpace, originalKey));
-        REQUIRE(bindings.isMappedKeyForHyperBinding(hyperKeyV, originalKeyJ));
-        REQUIRE(bindings.isMappedKeyForHyperBinding(hyperKeySpace, originalKeyJ));
-        REQUIRE(bindings.isMappedKeyForHyperBinding(hyperKeyV, originalKeySpecific));
-        REQUIRE(bindings.isMappedKeyForHyperBinding(hyperKeySpace, originalKeySpecific));
-        REQUIRE(bindings.getMappedKeyForHyperBinding(hyperKeySpace, originalKey) == mappedKey);
-        REQUIRE(bindings.getMappedKeyForHyperBinding(hyperKeyV, originalKey) == mappedKey);
-        REQUIRE(bindings.getMappedKeyForHyperBinding(hyperKeyV, originalKeySpecific) == mappedKeySpecific);
-        REQUIRE(bindings.getMappedKeyForHyperBinding(hyperKeySpace, originalKeySpecific) == mappedKeySpecificSpace);
-        REQUIRE(bindings.getMappedKeyForHyperBinding(hyperKeySpace, originalKeyJ) == mappedKeyJ);
-        REQUIRE(bindings.getMappedKeyForHyperBinding(hyperKeyV, originalKeyJ) == mappedKeyJ);
+        REQUIRE(config.bindings.hyperKeyExists(hyperKeySpace));
+        REQUIRE(config.bindings.hyperKeyExists(hyperKeyV));
+        REQUIRE(config.bindings.isMappedKeyForHyperBinding(hyperKeyV, originalKey));
+        REQUIRE(config.bindings.isMappedKeyForHyperBinding(hyperKeySpace, originalKey));
+        REQUIRE(config.bindings.isMappedKeyForHyperBinding(hyperKeyV, originalKeyJ));
+        REQUIRE(config.bindings.isMappedKeyForHyperBinding(hyperKeySpace, originalKeyJ));
+        REQUIRE(config.bindings.isMappedKeyForHyperBinding(hyperKeyV, originalKeySpecific));
+        REQUIRE(config.bindings.isMappedKeyForHyperBinding(hyperKeySpace, originalKeySpecific));
+        REQUIRE(config.bindings.getMappedKeyForHyperBinding(hyperKeySpace, originalKey) == mappedKey);
+        REQUIRE(config.bindings.getMappedKeyForHyperBinding(hyperKeyV, originalKey) == mappedKey);
+        REQUIRE(config.bindings.getMappedKeyForHyperBinding(hyperKeyV, originalKeySpecific) == mappedKeySpecific);
+        REQUIRE(config.bindings.getMappedKeyForHyperBinding(hyperKeySpace, originalKeySpecific) == mappedKeySpecificSpace);
+        REQUIRE(config.bindings.getMappedKeyForHyperBinding(hyperKeySpace, originalKeyJ) == mappedKeyJ);
+        REQUIRE(config.bindings.getMappedKeyForHyperBinding(hyperKeyV, originalKeyJ) == mappedKeyJ);
     }
 
     SECTION("Parse config_files/reassign_key_configuration.conf") {
@@ -109,9 +109,9 @@ TEST_CASE("Parse simple configuration file", "[config]") {
 
         std::filesystem::path configPath = std::filesystem::current_path() / "src/tests/config_files/reassign_key_configuration.conf";
 
-        auto bindings = readConfiguration(std::string{configPath});
+        Config config{ Config::fromConfigFile(std::string{configPath}) };
 
-        REQUIRE(bindings.getMappedKeyForHyperBinding(hyperKeySpace, originalKey) == newMappedKeyForHyperSpace);
-        REQUIRE(bindings.getMappedKeyForHyperBinding(hyperKeyV, originalKey) == newMappedKeyForHyperV);
+        REQUIRE(config.bindings.getMappedKeyForHyperBinding(hyperKeySpace, originalKey) == newMappedKeyForHyperSpace);
+        REQUIRE(config.bindings.getMappedKeyForHyperBinding(hyperKeyV, originalKey) == newMappedKeyForHyperV);
     }
 }

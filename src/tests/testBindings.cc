@@ -3,10 +3,11 @@
 
 #include "../service/Bindings.h"
 #include "../service/KeyCodes.h"
+#include "../service/Config.h"
 
 TEST_CASE("Access bindings map", "[bindings]") {
-    Bindings bindings = Bindings{};
-    KeyCodes keyCodes = KeyCodes{};
+    Config config{};
+    KeyCodes keyCodes{};
     auto originalKey = keyCodes.getKeyCodeFromKeyString("KEY_M");
     auto mappedKey = keyCodes.getKeyCodeFromKeyString("KEY_E");
 
@@ -15,29 +16,29 @@ TEST_CASE("Access bindings map", "[bindings]") {
         //std::cout << "Counter: \n";
 
         SECTION("Add hyper key explicitly") {
-            bindings.addHyperKey(hyperKey);
-            REQUIRE(bindings.hyperKeyExists(hyperKey));
+            config.bindings.addHyperKey(hyperKey);
+            REQUIRE(config.bindings.hyperKeyExists(hyperKey));
         }
 
         SECTION("Do not add hyper key explicitly") {
-            REQUIRE(!bindings.hyperKeyExists(hyperKey));
+            REQUIRE(!config.bindings.hyperKeyExists(hyperKey));
         }
 
-        bindings.addHyperMapping(hyperKey, originalKey, mappedKey);
-        REQUIRE(bindings.getMappedKeyForHyperBinding(hyperKey, originalKey) == mappedKey);
+        config.bindings.addHyperMapping(hyperKey, originalKey, mappedKey);
+        REQUIRE(config.bindings.getMappedKeyForHyperBinding(hyperKey, originalKey) == mappedKey);
 
         // TODO: Decide what to do when looking for an nonexistent key.
         SECTION("Look for nonexistent original key for an existing hyper key") {
-            REQUIRE(bindings.getMappedKeyForHyperBinding(hyperKey, 0) == 0);
+            REQUIRE(config.bindings.getMappedKeyForHyperBinding(hyperKey, 0) == 0);
         }
     }
 
     SECTION("Manipulate with permanent remappings") {
-        bindings.addPermanentRemapping(originalKey, mappedKey);
-        REQUIRE(bindings.getMappedKeyForPermanentRemapping(originalKey) == mappedKey);
+        config.bindings.addPermanentRemapping(originalKey, mappedKey);
+        REQUIRE(config.bindings.getMappedKeyForPermanentRemapping(originalKey) == mappedKey);
 
         //SECTION("Look for nonexistent original key in permanent remappings") {
-        //    REQUIRE_THROWS_AS(bindings.getMappedKeyForPermanentRemapping(0), OriginalKeyNotFoundException);
+        //    REQUIRE_THROWS_AS(config.bindings.getMappedKeyForPermanentRemapping(0), OriginalKeyNotFoundException);
         //}
     }
 }

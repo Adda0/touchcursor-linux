@@ -5,8 +5,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(SOURCE_FILES
         src/service/binding.cc
         src/service/binding.h
-        src/service/config.cc
-        src/service/config.h
+        src/service/Config.cc
+        src/service/Config.h
         src/service/emit.h
         src/service/KeyCodes.cc
         src/service/KeyCodes.h
