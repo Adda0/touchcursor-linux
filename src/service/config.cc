@@ -7,7 +7,6 @@
 #include <iostream>
 
 #include "config.h"
-#include "keys.h"
 #include "KeyCodes.h"
 #include "Bindings.h"
 

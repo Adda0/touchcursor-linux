@@ -1,4 +1,3 @@
-#include <string.h>
 #include <linux/uinput.h>
 
 #include "keys.h"
