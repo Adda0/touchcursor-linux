@@ -1,9 +1,7 @@
-#include <iostream>
-
 #include "Bindings.h"
 
-void
-Bindings::addHyperMapping(const THyperKey &hyperKey, const TOriginalKey &originalKey, const TMappedKey &mappedKey) {
+void Bindings::addHyperMapping(const THyperKey &hyperKey, const TOriginalKey &originalKey,
+                               const TMappedKey &mappedKey) {
     auto &keyBindingMap = this->addHyperKey(hyperKey);
 
     keyBindingMap.insert_or_assign(originalKey, mappedKey);

@@ -1,8 +1,8 @@
 //#define _GNU_SOURCE
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <unistd.h>
-#include <errno.h>
+#include <cerrno>
 #include <linux/input.h>
 
 #include "Config.h"

@@ -21,13 +21,11 @@ extern char outputString[256];
  * Simulates typing keys.
  * The method arguments should be number of arguments, then pairs of key code and key value.
  */
-static void type(Config& config, int num, ...)
-{
-    for(int i = 0; i < 256; i++) outputString[i] = 0;
+static void type(Config &config, int num, ...) {
+    for (int i = 0; i < 256; i++) outputString[i] = 0;
     va_list arguments;
     va_start(arguments, num);
-    for (int i = 0; i < num; i += 2)
-    {
+    for (int i = 0; i < num; i += 2) {
         int code = va_arg(arguments, int);
         int value = va_arg(arguments, int);
         processKey(config, EV_KEY, code, value);
@@ -38,106 +36,119 @@ static void type(Config& config, int num, ...)
 TEST_CASE("Emit events according to configuration", "[emit]") {
     KeyCodes keyCodes = KeyCodes{};
 
-    TOriginalKey originalKey{ keyCodes.getKeyCodeFromKeyString("KEY_H") };
-    TMappedKey mappedKey{ keyCodes.getKeyCodeFromKeyString("KEY_G") };
+    TOriginalKey originalKey{keyCodes.getKeyCodeFromKeyString("KEY_H")};
+    TMappedKey mappedKey{keyCodes.getKeyCodeFromKeyString("KEY_G")};
     std::string expected{};
 
     SECTION("Emit according to config_files/simple_config_multiple_hyper_keys.conf") {
-        std::filesystem::path configPath = std::filesystem::current_path() / "src/tests/config_files/simple_config_multiple_hyper_keys.conf";
+        std::filesystem::path configPath =
+                std::filesystem::current_path() / "src/tests/config_files/simple_config_multiple_hyper_keys.conf";
 
-        Config config { Config::fromConfigFile(std::string{configPath}) };
+        Config config{Config::fromConfigFile(std::string{configPath})};
 
         SECTION("Normal typing without overlapping key events") {
             SECTION("Space down, up") {
                 expected = "57:1 57:0 ";
-                type(config, 4, KEY_SPACE, 1, KEY_SPACE, 0);
+                type(config, 4, KEY_SPACE, EVENT_KEY_DOWN, KEY_SPACE, EVENT_KEY_UP);
                 REQUIRE(expected == outputString);
             }
 
             SECTION("Space down, up, down, up") {
                 expected = "57:1 57:0 57:1 57:0 ";
-                type(config, 8, KEY_SPACE, 1, KEY_SPACE, 0, KEY_SPACE, 1, KEY_SPACE, 0);
+                type(config, 8, KEY_SPACE, EVENT_KEY_DOWN, KEY_SPACE, EVENT_KEY_UP, KEY_SPACE, EVENT_KEY_DOWN,
+                     KEY_SPACE, EVENT_KEY_UP);
                 REQUIRE(expected == outputString);
             }
 
             SECTION("Other down, Space down, up, Other up") {
                 expected = "31:1 57:1 57:0 31:0 ";
-                type(config, 8, KEY_S, 1, KEY_SPACE, 1, KEY_SPACE, 0, KEY_S, 0);
+                type(config, 8, KEY_S, EVENT_KEY_DOWN, KEY_SPACE, EVENT_KEY_DOWN, KEY_SPACE, EVENT_KEY_UP, KEY_S,
+                     EVENT_KEY_UP);
                 REQUIRE(expected == outputString);
             }
 
             SECTION("Space down, Other down, up, Space up") {
                 expected = "57:1 31:1 31:0 57:0 ";
-                type(config, 8, KEY_SPACE, 1, KEY_S, 1, KEY_S, 0, KEY_SPACE, 0);
+                type(config, 8, KEY_SPACE, EVENT_KEY_DOWN, KEY_S, EVENT_KEY_DOWN, KEY_S, EVENT_KEY_UP, KEY_SPACE,
+                     EVENT_KEY_UP);
                 REQUIRE(expected == outputString);
             }
 
             SECTION("V down, up") {
                 expected = "47:1 47:0 ";
-                type(config, 4, KEY_V, 1, KEY_V, 0);
+                type(config, 4, KEY_V, EVENT_KEY_DOWN, KEY_V, EVENT_KEY_UP);
                 REQUIRE(expected == outputString);
             }
 
             SECTION("Space down, H down, H up, space up") {
                 expected = "34:1 34:0 ";
-                type(config, 8, KEY_SPACE, 1, KEY_H, 1, KEY_H, 0, KEY_SPACE, 0);
+                type(config, 8, KEY_SPACE, EVENT_KEY_DOWN, KEY_H, EVENT_KEY_DOWN, KEY_H, EVENT_KEY_UP, KEY_SPACE,
+                     EVENT_KEY_UP);
                 REQUIRE(expected == outputString);
             }
 
             SECTION("Space down, Mapped down, up, Space up") {
                 expected = "105:1 105:0 ";
-                type(config, 8, KEY_SPACE, 1, KEY_J, 1, KEY_J, 0, KEY_SPACE, 0);
+                type(config, 8, KEY_SPACE, EVENT_KEY_DOWN, KEY_J, EVENT_KEY_DOWN, KEY_J, EVENT_KEY_UP, KEY_SPACE,
+                     EVENT_KEY_UP);
                 REQUIRE(expected == outputString);
             }
 
             SECTION("Mapped down, Space down, up, Mapped up") {
                 expected = "36:1 57:1 57:0 36:0 ";
-                type(config, 8, KEY_J, 1, KEY_SPACE, 1, KEY_SPACE, 0, KEY_J, 0);
+                type(config, 8, KEY_J, EVENT_KEY_DOWN, KEY_SPACE, EVENT_KEY_DOWN, KEY_SPACE, EVENT_KEY_UP, KEY_J,
+                     EVENT_KEY_UP);
                 REQUIRE(expected == outputString);
             }
 
             SECTION("Mapped down, Space down, up, Different mapped down, up, Mapped up") {
                 expected = "36:1 57:1 57:0 23:1 23:0 36:0 ";
-                type(config, 12, KEY_J, 1, KEY_SPACE, 1, KEY_SPACE, 0, KEY_I, 1, KEY_I, 0, KEY_J, 0);
+                type(config, 12, KEY_J, EVENT_KEY_DOWN, KEY_SPACE, EVENT_KEY_DOWN, KEY_SPACE, EVENT_KEY_UP, KEY_I,
+                     EVENT_KEY_DOWN, KEY_I, EVENT_KEY_UP, KEY_J, EVENT_KEY_UP);
                 REQUIRE(expected == outputString);
             }
 
             SECTION("V down, Mapped down, up, V up") {
                 expected = "105:1 105:0 ";
-                type(config, 8, KEY_V, 1, KEY_J, 1, KEY_J, 0, KEY_V, 0);
+                type(config, 8, KEY_V, EVENT_KEY_DOWN, KEY_J, EVENT_KEY_DOWN, KEY_J, EVENT_KEY_UP, KEY_V, EVENT_KEY_UP);
                 REQUIRE(expected == outputString);
             }
 
-            // TODO: Should we get 105:0 two times at the end?
+                // TODO: Should we get 105:0 two times at the end?
             SECTION("V down, Mapped down, up, Mapped down, up, V up") {
                 expected = "105:1 105:0 105:1 105:0 105:0 ";
-                type(config, 12, KEY_V, 1, KEY_J, 1, KEY_J, 0, KEY_J, 1, KEY_J, 0, KEY_V, 0);
+                type(config, 12, KEY_V, EVENT_KEY_DOWN, KEY_J, EVENT_KEY_DOWN, KEY_J, EVENT_KEY_UP, KEY_J,
+                     EVENT_KEY_DOWN, KEY_J, EVENT_KEY_UP, KEY_V, EVENT_KEY_UP);
                 REQUIRE(expected == outputString);
             }
 
-            // TODO: Correctly set what to expect.
+                // TODO: Correctly set what to expect.
             SECTION("V down, Space down, Space up, V up") {
                 expected = "57:1 57:0 47:0 ";
-                type(config, 8, KEY_V, 1, KEY_SPACE, 1, KEY_SPACE, 0, KEY_V, 0);
+                type(config, 8, KEY_V, EVENT_KEY_DOWN, KEY_SPACE, EVENT_KEY_DOWN, KEY_SPACE, EVENT_KEY_UP, KEY_V,
+                     EVENT_KEY_UP);
                 REQUIRE(expected == outputString);
             }
 
             SECTION("Space down, V down, V up, Space up") {
                 expected = "45:1 45:0 ";
-                type(config, 8, KEY_SPACE, 1, KEY_V, 1, KEY_V, 0, KEY_SPACE, 0);
+                type(config, 8, KEY_SPACE, EVENT_KEY_DOWN, KEY_V, EVENT_KEY_DOWN, KEY_V, EVENT_KEY_UP, KEY_SPACE,
+                     EVENT_KEY_UP);
                 REQUIRE(expected == outputString);
             }
 
-            // TODO: Should we get 45:0 two times at the end?
+                // TODO: Should we get 45:0 two times at the end?
             SECTION("Space down, V down, V up, V down, V up, Space up") {
                 expected = "45:1 45:0 45:1 45:0 45:0 ";
-                type(config, 12, KEY_SPACE, 1, KEY_V, 1, KEY_V, 0, KEY_V, 1, KEY_V, 0, KEY_SPACE, 0);
+                type(config, 12, KEY_SPACE, EVENT_KEY_DOWN, KEY_V, EVENT_KEY_DOWN, KEY_V, EVENT_KEY_UP, KEY_V,
+                     EVENT_KEY_DOWN, KEY_V, EVENT_KEY_UP, KEY_SPACE, EVENT_KEY_UP);
                 REQUIRE(expected == outputString);
             }
 
             SECTION("Shift down, V down, V up, Shift up") {
                 expected = "42:1 47:1 47:0 42:0 ";
-                type(config, 8, KEY_LEFTSHIFT, 1, KEY_V, 1, KEY_V, 0, KEY_LEFTSHIFT, 0);
+                type(config, 8, KEY_LEFTSHIFT, EVENT_KEY_DOWN, KEY_V, EVENT_KEY_DOWN, KEY_V, EVENT_KEY_UP,
+                     KEY_LEFTSHIFT, EVENT_KEY_UP);
                 REQUIRE(expected == outputString);
             }
         }
@@ -147,7 +158,8 @@ TEST_CASE("Emit events according to configuration", "[emit]") {
             SECTION("Space down, mapped down, space up, mapped up") {
                 // The mapped keys should not be converted.
                 expected = "57:1 36:1 57:0 36:0 ";
-                type(config, 8, KEY_SPACE, 1, KEY_J, 1, KEY_SPACE, 0, KEY_J, 0);
+                type(config, 8, KEY_SPACE, EVENT_KEY_DOWN, KEY_J, EVENT_KEY_DOWN, KEY_SPACE, EVENT_KEY_UP, KEY_J,
+                     EVENT_KEY_UP);
                 REQUIRE(expected == outputString);
             }
 
@@ -155,7 +167,8 @@ TEST_CASE("Emit events according to configuration", "[emit]") {
                 // This is not out of order. Remember space down does not emit anything.
                 // The mapped keys should not be converted.
                 expected = "36:1 36:0 57:1 57:0 ";
-                type(config, 8, KEY_J, 1, KEY_SPACE, 1, KEY_J, 0, KEY_SPACE, 0);
+                type(config, 8, KEY_J, EVENT_KEY_DOWN, KEY_SPACE, EVENT_KEY_DOWN, KEY_J, EVENT_KEY_UP, KEY_SPACE,
+                     EVENT_KEY_UP);
                 REQUIRE(expected == outputString);
             }
 
@@ -163,7 +176,8 @@ TEST_CASE("Emit events according to configuration", "[emit]") {
                 // The mapped keys should be sent converted.
                 // Extra up events are sent, but that does not matter.
                 expected = "105:1 103:1 105:0 103:0 36:0 23:0 ";
-                type(config, 12, KEY_SPACE, 1, KEY_J, 1, KEY_I, 1, KEY_SPACE, 0, KEY_J, 0, KEY_I, 0);
+                type(config, 12, KEY_SPACE, EVENT_KEY_DOWN, KEY_J, EVENT_KEY_DOWN, KEY_I, EVENT_KEY_DOWN, KEY_SPACE,
+                     EVENT_KEY_UP, KEY_J, EVENT_KEY_UP, KEY_I, EVENT_KEY_UP);
                 REQUIRE(expected == outputString);
             }
 
@@ -171,7 +185,9 @@ TEST_CASE("Emit events according to configuration", "[emit]") {
                 // The mapped keys should be sent converted.
                 // Extra up events are sent, but that does not matter.
                 expected = "105:1 103:1 106:1 105:0 103:0 106:0 36:0 23:0 38:0 ";
-                type(config, 16, KEY_SPACE, 1, KEY_J, 1, KEY_I, 1, KEY_L, 1, KEY_SPACE, 0, KEY_J, 0, KEY_I, 0, KEY_L, 0);
+                type(config, 16, KEY_SPACE, EVENT_KEY_DOWN, KEY_J, EVENT_KEY_DOWN, KEY_I, EVENT_KEY_DOWN, KEY_L,
+                     EVENT_KEY_DOWN, KEY_SPACE, EVENT_KEY_UP, KEY_J, EVENT_KEY_UP, KEY_I, EVENT_KEY_UP, KEY_L,
+                     EVENT_KEY_UP);
                 REQUIRE(expected == outputString);
             }
         }
@@ -181,7 +197,8 @@ TEST_CASE("Emit events according to configuration", "[emit]") {
             SECTION("Space down, other (modifier) down, other (modifier) up, space up") {
                 // The mapped keys should not be converted.
                 expected = "42:1 42:0 ";
-                type(config, 6, KEY_SPACE, 1, KEY_LEFTSHIFT, 1, KEY_LEFTSHIFT, 0, KEY_SPACE, 0);
+                type(config, 6, KEY_SPACE, EVENT_KEY_DOWN, KEY_LEFTSHIFT, EVENT_KEY_DOWN, KEY_LEFTSHIFT, EVENT_KEY_UP,
+                     KEY_SPACE, EVENT_KEY_UP);
                 REQUIRE(expected == outputString);
             }
         }

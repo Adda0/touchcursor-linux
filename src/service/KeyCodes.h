@@ -5,6 +5,9 @@
 #include <unordered_map>
 #include <string>
 
+constexpr int EVENT_KEY_DOWN{ 1 }; // Key down event emitted when pressing a key.
+constexpr int EVENT_KEY_UP{ 0 }; // Key up event emitted when releasing a key.
+
 // These are included for kernel v5.4 support (Ubuntu LTS)
 // and can be safely removed after Ubuntu LTS updates (2025! :D)
 #ifndef KEY_NOTIFICATION_CENTER
