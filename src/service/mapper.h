@@ -16,4 +16,8 @@ extern enum states state;
  * */
 void processKey(Config &config, int type, int code, int value);
 
+void emitPermanentRemapping(Config &config, int type, int code, int value);
+
+void emitHyperBinding(Config &config, int type, int hyperKeyCode, int originalKeyCode, int value);
+
 #endif

@@ -171,8 +171,18 @@ static enum sections {
 // }
 
 Config Config::fromConfigFile(const std::string &configPath) {
+    FILE *configFile{findConfigurationFile(configPath)};
+
+    if (!configFile) {
+        fprintf(stderr, "error: could not open the configuration file\n");
+        return Config{};
+    }
+
+    return parseConfigurationFile(configFile);
+}
+
+FILE *Config::findConfigurationFile(const std::string &configPath) {// Find the configuration file.
     char configFilePath[256];
-    // Find the configuration file.
     configFilePath[0] = '\0';
     FILE *configFile;
 
@@ -192,18 +202,16 @@ Config Config::fromConfigFile(const std::string &configPath) {
             fprintf(stdout, "info: looking for the configuration file at: %s\n", configFilePath);
             configFile = fopen(configFilePath, "r");
         }
-        if (!configFile) {
-            fprintf(stderr, "error: could not open the configuration file\n");
-            return Config{};
-        }
     } else {
         fprintf(stdout, "info: looking for the configuration file at: %s\n", configPath.c_str());
         configFile = fopen(configPath.c_str(), "r");
     }
 
     fprintf(stdout, "info: found the configuration file\n");
+    return configFile;
+}
 
-    // Parse the configuration file.
+Config Config::parseConfigurationFile(FILE *configFile) {
     Config config{};
     char *buffer = NULL;
     size_t length = 0;
@@ -247,12 +255,50 @@ Config Config::fromConfigFile(const std::string &configPath) {
                 continue;
             }
             case configuration_remap: {
-                char *tokens = line;
-                char *token = strsep(&tokens, "=");
-                int fromCode = keyCodes.getKeyCodeFromKeyString(token);
-                token = strsep(&tokens, "=");
-                int toCode = keyCodes.getKeyCodeFromKeyString(token);
-                config.bindings.addPermanentRemapping(fromCode, toCode);
+                std::string line_str = line;
+                size_t pos_equal{0};
+                size_t pos_plus{0};
+                size_t pos_comma{0};
+                std::string fromItem;
+                std::string sequenceItem;
+                std::string combinationItem;
+                if ((pos_equal = line_str.find('=')) == std::string::npos) {
+                    std::cerr << "error: wrong binding format: " << line_str << "\n";
+                    return Config{};
+                }
+
+                fromItem = line_str.substr(0, pos_equal);
+                std::cout << fromItem << std::endl;
+                int fromCode = keyCodes.getKeyCodeFromKeyString(fromItem);
+                line_str.erase(0, pos_equal + 1);
+                std::cout << line_str << std::endl;
+
+                // Parse mapped keys.
+                TMappedKeysSequenceList toCodes{};
+                while ((pos_comma = line_str.find_first_of(',')) != std::string::npos) {
+                    sequenceItem = line_str.substr(0, pos_comma);
+
+                    toCodes.push_back(TMappedKeysCombinationList{});
+                    while ((pos_plus = sequenceItem.find_first_of('+')) != std::string::npos) {
+                        combinationItem = sequenceItem.substr(0, pos_plus);
+                        toCodes.back().push_back(keyCodes.getKeyCodeFromKeyString(combinationItem));
+
+                        line_str.erase(0, pos_plus + 1);
+                    }
+                    toCodes.back().push_back(keyCodes.getKeyCodeFromKeyString(sequenceItem));
+
+
+                    line_str.erase(0, pos_comma + 1);
+                }
+                toCodes.push_back(TMappedKeysCombinationList{});
+                while ((pos_plus = line_str.find_first_of('+')) != std::string::npos) {
+                    combinationItem = line_str.substr(0, pos_plus);
+                    toCodes.back().push_back(keyCodes.getKeyCodeFromKeyString(combinationItem));
+
+                    line_str.erase(0, pos_plus + 1);
+                }
+                toCodes.back().push_back(keyCodes.getKeyCodeFromKeyString(line_str));
+                config.bindings.addPermanentRemapping(fromCode, toCodes);
                 break;
             }
             case configuration_hyper: {
@@ -276,23 +322,65 @@ Config Config::fromConfigFile(const std::string &configPath) {
                     break;
                 }
 
-                char *token = strsep(&line, "=");
-                int fromCode = keyCodes.getKeyCodeFromKeyString(token);
-                token = strsep(&line, "=");
-                int toCode = keyCodes.getKeyCodeFromKeyString(token);
+
+
+                size_t pos_equal{0};
+                size_t pos_plus{0};
+                size_t pos_comma{0};
+                std::string fromItem;
+                std::string sequenceItem;
+                std::string combinationItem;
+                if ((pos_equal = line_str.find('=')) == std::string::npos) {
+                    std::cerr << "error: wrong binding format: " << line_str << "\n";
+                    return Config{};
+                }
+
+                fromItem = line_str.substr(0, pos_equal);
+                std::cout << fromItem << std::endl;
+                int fromCode = keyCodes.getKeyCodeFromKeyString(fromItem);
+                line_str.erase(0, pos_equal + 1);
+                std::cout << line_str << std::endl;
+
+                // Parse mapped keys.
+                TMappedKeysSequenceList toCodes{};
+                while ((pos_comma = line_str.find_first_of(',')) != std::string::npos) {
+                    sequenceItem = line_str.substr(0, pos_comma);
+
+                    toCodes.push_back(TMappedKeysCombinationList{});
+                    while ((pos_plus = sequenceItem.find_first_of('+')) != std::string::npos) {
+                        combinationItem = sequenceItem.substr(0, pos_plus);
+                        toCodes.back().push_back(keyCodes.getKeyCodeFromKeyString(combinationItem));
+
+                        //line_str.erase(0, pos_plus + 1);
+                        sequenceItem.erase(0, pos_plus + 1);
+                    }
+                    toCodes.back().push_back(keyCodes.getKeyCodeFromKeyString(sequenceItem));
+
+
+                    line_str.erase(0, pos_comma + 1);
+                }
+                toCodes.push_back(TMappedKeysCombinationList{});
+                while ((pos_plus = line_str.find_first_of('+')) != std::string::npos) {
+                    combinationItem = line_str.substr(0, pos_plus);
+                    toCodes.back().push_back(keyCodes.getKeyCodeFromKeyString(combinationItem));
+
+                    line_str.erase(0, pos_plus + 1);
+                }
+                toCodes.back().push_back(keyCodes.getKeyCodeFromKeyString(line_str));
 
                 std::cout << "Current Hyper key empty: " << current_hyper_key.empty() << "\n";
 
                 if (current_hyper_key.empty()) {
                     std::cout << "Adding common hyper key mapping.\n";
-                    config.bindings.addCommonHyperMapping(fromCode, toCode);
+                    config.bindings.addCommonHyperMapping(fromCode, toCodes);
                     //std::cout << config.bindings.getMappedKeyForHyperBinding(hyperKey, fromCode) << "\n";
                 } else {
                     std::cout << "Current hyper key: " << current_hyper_key << "\n";
                     config.bindings.addHyperMapping(config.bindings.getHyperKeyForHyperName(current_hyper_key),
-                                                    fromCode, toCode);
+                                                    fromCode, toCodes);
                     std::cout << "Added specific hyper key option.\n";
                 }
+
                 break;
             }
             case configuration_none:

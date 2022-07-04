@@ -203,6 +203,34 @@ TEST_CASE("Emit events according to configuration", "[emit]") {
             }
         }
     }
+
+    SECTION("Emit according to config_files/sequence_combination.conf") {
+        std::filesystem::path configPath =
+                std::filesystem::current_path() / "src/tests/config_files/sequence_combination.conf";
+
+        Config config{Config::fromConfigFile(std::string{configPath})};
+
+        SECTION("Combination") {
+            expected = "42:1 34:1 34:0 42:0 ";
+            type(config, 8, KEY_SPACE, EVENT_KEY_DOWN, KEY_H, EVENT_KEY_DOWN, KEY_H, EVENT_KEY_UP, KEY_SPACE,
+                 EVENT_KEY_UP);
+            REQUIRE(expected == outputString);
+        }
+
+        SECTION("Sequence") {
+            expected = "20:1 20:0 33:1 33:0 ";
+            type(config, 8, KEY_SPACE, EVENT_KEY_DOWN, KEY_J, EVENT_KEY_DOWN, KEY_J, EVENT_KEY_UP, KEY_SPACE,
+                 EVENT_KEY_UP);
+            REQUIRE(expected == outputString);
+        }
+
+        SECTION("Sequence + combination") {
+            expected = "103:1 103:0 42:1 34:1 34:0 42:0 33:1 33:0 ";
+            type(config, 8, KEY_SPACE, EVENT_KEY_DOWN, KEY_I, EVENT_KEY_DOWN, KEY_I, EVENT_KEY_UP, KEY_SPACE,
+                 EVENT_KEY_UP);
+            REQUIRE(expected == outputString);
+        }
+    }
 }
 
 // Sample tests from touchcursor source

@@ -1,10 +1,10 @@
 #include "Bindings.h"
 
 void Bindings::addHyperMapping(const THyperKey &hyperKey, const TOriginalKey &originalKey,
-                               const TMappedKey &mappedKey) {
+                               const TMappedKeysSequenceList &mappedKeysSequenceList) {
     auto &keyBindingMap = this->addHyperKey(hyperKey);
 
-    keyBindingMap.insert_or_assign(originalKey, mappedKey);
+    keyBindingMap.insert_or_assign(originalKey, mappedKeysSequenceList);
     //std::cout << "After insertion: " << keyBindingMap.find(originalKey)->second << "\n";
     //std::cout << "With method: " << this->getMappedKeyForHyperBinding(hyperKey, originalKey) << "\n";
 }
@@ -13,35 +13,30 @@ bool Bindings::hyperKeyExists(const THyperKey &hyperKey) {
     return this->hyperBindings.find(hyperKey) != this->hyperBindings.end();
 }
 
-void Bindings::addPermanentRemapping(const TOriginalKey &originalKey, const TMappedKey &mappedKey) {
-    this->permanentRemappings.insert_or_assign(originalKey, mappedKey);
+void Bindings::addPermanentRemapping(const TOriginalKey &originalKey, const TMappedKeysSequenceList &mappedKeysSequenceList) {
+    this->permanentRemappings.insert_or_assign(originalKey, mappedKeysSequenceList);
 }
 
-TMappedKey Bindings::getMappedKeyForHyperBinding(const THyperKey &hyperKey, const TOriginalKey &originalKey) {
+TMappedKeysSequenceList& Bindings::getMappedKeyForHyperBinding(const THyperKey &hyperKey, const TOriginalKey &originalKey) {
     auto &hyperKeyBindings = this->hyperBindings.find(hyperKey)->second;
     //std::cout << "Empty: " << hyperKeyBindings.empty() << "\n";
     auto originalKeyBinding = hyperKeyBindings.find(originalKey);
     if (originalKeyBinding == hyperKeyBindings.end()) {
         originalKeyBinding = this->commonHyperBindings.find(originalKey);
-        if (originalKeyBinding == this->commonHyperBindings.end()) {
-            return originalKey;
-        }
     }
 
     return originalKeyBinding->second;
 }
 
-TMappedKey Bindings::getMappedKeyForPermanentRemapping(const TOriginalKey &originalKey) {
+TMappedKeysSequenceList& Bindings::getMappedKeyForPermanentRemapping(const TOriginalKey &originalKey) {
     auto permanentRemapping = this->permanentRemappings.find(originalKey);
     if (permanentRemapping != this->permanentRemappings.end()) {
         return permanentRemapping->second;
     }
-
-    return originalKey;
 }
 
-void Bindings::addCommonHyperMapping(const TOriginalKey &originalKey, const TMappedKey &mappedKey) {
-    this->commonHyperBindings.insert_or_assign(originalKey, mappedKey);
+void Bindings::addCommonHyperMapping(const TOriginalKey &originalKey, const TMappedKeysSequenceList& mappedKeysSequenceList) {
+    this->commonHyperBindings.insert_or_assign(originalKey, mappedKeysSequenceList);
 }
 
 TKeyBindingMap &Bindings::addHyperKey(const THyperKey &hyperKey) {
@@ -88,7 +83,7 @@ bool Bindings::isMappedKeyForHyperBinding(THyperKey hyperKey, TOriginalKey origi
     return true;
 }
 
-bool Bindings::permanentRemappingExists(const TOriginalKey &originalKey) {
+bool Bindings::isMappedKeyForPermanentRemapping(const TOriginalKey &originalKey) {
     return this->permanentRemappings.find(originalKey) != this->permanentRemappings.end();
 }
 
@@ -112,4 +107,27 @@ void Bindings::bindHyperNamesWithoutKeys() {
     }
 
     this->hyperNamesWithoutKey.clear();
+}
+
+bool Bindings::isSequenceHyperMapping(THyperKey hyperKey, TOriginalKey originalKey) {
+    auto hyperKeyBindings{this->hyperBindings.find(hyperKey)->second};
+
+    if (hyperKeyBindings.find(originalKey) == hyperKeyBindings.end()) {
+        auto commonHyperKeyBindings = this->commonHyperBindings.find(originalKey);
+        if (commonHyperKeyBindings == commonHyperBindings.end()) {
+            return false;
+        }
+
+        if (commonHyperKeyBindings->second.size() > 1) {
+            return true;
+        }
+
+        return false;
+    }
+
+    if (hyperKeyBindings.size() > 1) {
+        return true;
+    }
+
+    return false;
 }

@@ -25,6 +25,10 @@ public:
 
 private:
     bool debugMode{false};
+
+    static Config parseConfigurationFile(FILE *configFile);
+
+    static FILE *findConfigurationFile(const std::string &configPath);
 };
 
 #endif

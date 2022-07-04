@@ -14,8 +14,10 @@ class HyperNameWithoutKeyException : public std::exception {
 using THyperKey = int;
 using TOriginalKey = int;
 using TMappedKey = int;
+using TMappedKeysCombinationList = std::vector<TMappedKey>;
+using TMappedKeysSequenceList = std::vector<TMappedKeysCombinationList>;
 using THyperName = std::string;
-using TKeyBindingMap = std::unordered_map<TOriginalKey, TMappedKey>;
+using TKeyBindingMap = std::unordered_map<TOriginalKey, TMappedKeysSequenceList>;
 using THyperKeysMap = std::unordered_map<THyperKey, TKeyBindingMap>;
 using THyperNamesMap = std::unordered_map<THyperName, THyperKey>;
 using THyperNamesWithoutKey = std::vector<THyperName>;
@@ -30,21 +32,24 @@ public:
 
     THyperKey getHyperKeyForHyperName(const THyperName &hyperName);
 
-    void addPermanentRemapping(const TOriginalKey &originalKey, const TMappedKey &mappedKey);
+    void addPermanentRemapping(const TOriginalKey &originalKey, const TMappedKeysSequenceList &mappedKeysSequenceList);
 
-    void addCommonHyperMapping(const TOriginalKey &originalKey, const TMappedKey &mappedKey);
+    void addCommonHyperMapping(const TOriginalKey &originalKey, const TMappedKeysSequenceList &mappedKeysSequenceList);
 
-    void addHyperMapping(const THyperKey &hyperKey, const TOriginalKey &originalKey, const TMappedKey &mappedKey);
+
+    void addHyperMapping(const THyperKey &hyperKey, const TOriginalKey &originalKey, const TMappedKeysSequenceList &mappedKeysSequenceList);
 
     bool hyperKeyExists(const THyperKey &hyperKey);
 
-    TMappedKey getMappedKeyForHyperBinding(const THyperKey &hyperKey, const TOriginalKey &originalKey);
+    TMappedKeysSequenceList& getMappedKeyForHyperBinding(const THyperKey &hyperKey, const TOriginalKey &originalKey);
 
-    TMappedKey getMappedKeyForPermanentRemapping(const TOriginalKey &originalKey);
+    TMappedKeysSequenceList& getMappedKeyForPermanentRemapping(const TOriginalKey &originalKey);
 
-    bool permanentRemappingExists(const TOriginalKey &originalKey);
+    bool isMappedKeyForPermanentRemapping(const TOriginalKey &originalKey);
 
     bool isMappedKeyForHyperBinding(THyperKey hyperKey, TOriginalKey originalKey);
+
+    bool isSequenceHyperMapping(THyperKey hyperKey, TOriginalKey originalKey);
 
     bool isHyperNamesWithoutKeyEmpty();
 
