@@ -10,11 +10,13 @@
 #include "emit.h"
 #include "mapper.h"
 
+Config config;
+
 /**
 * Main method.
 * */
 int main(int argc, char *argv[]) {
-    Config config{Config::fromConfigFile()};
+    config = Config::fromConfigFile();
     if (eventPath[0] == '\0') {
         fprintf(stderr, "error: please specify the keyboard device name in the configuration file\n");
         return EXIT_FAILURE;
@@ -47,7 +49,7 @@ int main(int argc, char *argv[]) {
         // We only want to manipulate key presses
         if (inputEvent.type == EV_KEY
             && (inputEvent.value == 0 || inputEvent.value == 1 || inputEvent.value == 2)) {
-            processKey(config, inputEvent.type, inputEvent.code, inputEvent.value);
+            processKey(inputEvent.type, inputEvent.code, inputEvent.value);
         } else {
             emit(inputEvent.type, inputEvent.code, inputEvent.value);
         }

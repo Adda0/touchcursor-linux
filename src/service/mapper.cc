@@ -9,14 +9,14 @@
 #include "mapper.h"
 #include "KeyCodes.h"
 
-
 /**
  * Processes a key input event. Converts and emits events as necessary.
  */
-void processKey(Config &config, int type, int code, int value) {
+void processKey(int type, int code, int value) {
     static std::deque<TMappedKey> emitQueue{};
+
     // The state machine state.
-    static enum states state = idle;
+    static States state{ States::idle };
 
     static THyperKey currentHyperKey{0};
 
@@ -25,30 +25,30 @@ void processKey(Config &config, int type, int code, int value) {
 
     //printf("processKey(in): code=%i value=%i state=%i\n", code, value, state);
     switch (state) {
-        case idle: // 0
+        case States::idle:
         {
             if (config.bindings.hyperKeyExists(code) && isDown(value)) {
                 //std::cout << "Idle: Hyper key " << code << " pressed.\n";
-                state = hyper;
+                state = States::hyper;
                 currentHyperKey = code;
                 hyperEmitted = false;
                 emitQueue.clear();
             } else {
-                emitPermanentRemapping(config, type, code, value);
+                emitPermanentRemapping(type, code, value);
             }
             break;
         }
-        case hyper: // 1
+        case States::hyper: // 1
         {
             // Once a hyper key is pressed, we do not want to be able to change to bindings for other hyper keys. Therefore,
             // we would like to possibly emit a mapped key binding for the already pressed hyper binding.
             if (config.bindings.isMappedKeyForHyperBinding(currentHyperKey, code)) {
                 // A hyper key is being held down and a new key is pressed.
                 if (isDown(value)) {
-                    state = delay;
+                    state = States::delay;
                     emitQueue.push_back(code);
                 } else {
-                    emitPermanentRemapping(config, type, code, value);
+                    emitPermanentRemapping(type, code, value);
                 }
             } else if (config.bindings.hyperKeyExists(code)) {
             //    // FIXME: This whole branch is possibly wrong. When I am already holding a hyper key down, I do NOT
@@ -74,45 +74,45 @@ void processKey(Config &config, int type, int code, int value) {
             } else {
                 if (!isModifier(code) && isDown(value)) {
                     if (!hyperEmitted) {
-                        emitPermanentRemapping(config, type, currentHyperKey, EVENT_KEY_DOWN);
+                        emitPermanentRemapping(type, currentHyperKey, EVENT_KEY_DOWN);
                         hyperEmitted = true;
                     }
-                    emitPermanentRemapping(config, type, code, value);
+                    emitPermanentRemapping(type, code, value);
                 } else {
                     if (!hyperEmitted) {
-                        emitPermanentRemapping(config, type, currentHyperKey, EVENT_KEY_DOWN);
+                        emitPermanentRemapping(type, currentHyperKey, EVENT_KEY_DOWN);
                         hyperEmitted = true;
                     }
-                    emitPermanentRemapping(config, type, code, value);
+                    emitPermanentRemapping(type, code, value);
                 }
             }
             break;
         }
-        case delay: // 2
+        case States::delay: // 2
         {
             if (config.bindings.isMappedKeyForHyperBinding(currentHyperKey, code)) {
-                state = map;
+                state = States::map;
                 //if (isDown(value)) {
                 //    if (!emitQueue.empty()) {
-                //        emitHyperBinding(config, type, currentHyperKey, emitQueue.front(), EVENT_KEY_DOWN);
+                //        emitHyperBinding(type, currentHyperKey, emitQueue.front(), EVENT_KEY_DOWN);
                 //        //emitQueue.pop_front();
                 //    }
                 //    emitQueue.push_back(code);
-                //    emitHyperBinding(config, type, currentHyperKey, code, EVENT_KEY_DOWN);
+                //    emitHyperBinding(type, currentHyperKey, code, EVENT_KEY_DOWN);
                 //} else {
                     //for (const auto& queuedItem : emitQueue) {
                         bool differentKey{ emitQueue.front() != code };
                         if (differentKey) {
-                            emitHyperBinding(config, type, currentHyperKey, emitQueue.front(), EVENT_KEY_DOWN);
+                            emitHyperBinding(type, currentHyperKey, emitQueue.front(), EVENT_KEY_DOWN);
                             // FIXME: Probably not desired to emit DOWN UP for holding a key pressed down, right?
                             //  Wait up, that is exactly what a normal
-                            //emitHyperBinding(config, type, currentHyperKey, emitQueue.front(), EVENT_KEY_UP);
+                            //emitHyperBinding(type, currentHyperKey, emitQueue.front(), EVENT_KEY_UP);
                         }
                     //}
 
-                    emitHyperBinding(config, type, currentHyperKey, code, EVENT_KEY_DOWN);
+                    emitHyperBinding(type, currentHyperKey, code, EVENT_KEY_DOWN);
                     if (!differentKey) {
-                        emitHyperBinding(config, type, currentHyperKey, code, EVENT_KEY_UP);
+                        emitHyperBinding(type, currentHyperKey, code, EVENT_KEY_UP);
                         emitQueue.clear();
                     } else {
                         emitQueue.push_back(code);
@@ -132,20 +132,20 @@ void processKey(Config &config, int type, int code, int value) {
                     emitQueue.clear();
                 }
             } else {
-                state = map;
-                emitPermanentRemapping(config, type, code, value);
+                state = States::map;
+                emitPermanentRemapping(type, code, value);
             }
             break;
         }
-        case map: // 3
+        case States::map: // 3
         {
             if (config.bindings.isMappedKeyForHyperBinding(currentHyperKey, code)) {
                 if (isDown(value)) {
                     emitQueue.push_back(code);
-                    emitHyperBinding(config, type, currentHyperKey, code, EVENT_KEY_DOWN);
+                    emitHyperBinding(type, currentHyperKey, code, EVENT_KEY_DOWN);
                 } else {
                     if (emitQueue.front() == code) {
-                        emitHyperBinding(config, type, currentHyperKey, code, EVENT_KEY_UP);
+                        emitHyperBinding(type, currentHyperKey, code, EVENT_KEY_UP);
                         emitQueue.clear();
                     } else {
 
@@ -154,19 +154,19 @@ void processKey(Config &config, int type, int code, int value) {
                 }
             } else if (config.bindings.hyperKeyExists(code)) {
                 if (code == currentHyperKey && !isDown(value)) {
-                    state = idle;
+                    state = States::idle;
 
                     // Finish emitting the hyper key mappings whose DOWN key codes were emitted while holding the hyper
                     // key pressed.
                     for (const auto& queuedItem : emitQueue) {
-                        emitHyperBinding(config, type, currentHyperKey, queuedItem, EVENT_KEY_UP);
+                        emitHyperBinding(type, currentHyperKey, queuedItem, EVENT_KEY_UP);
                     }
                     emitQueue.clear();
                 } else {
-                    emitPermanentRemapping(config, type, code, value);
+                    emitPermanentRemapping(type, code, value);
                 }
             } else {
-                emitPermanentRemapping(config, type, code, value);
+                emitPermanentRemapping(type, code, value);
             }
             break;
         }
@@ -174,7 +174,7 @@ void processKey(Config &config, int type, int code, int value) {
     //printf("processKey(out): state=%i\n", state);
 }
 
-void emitPermanentRemapping(Config &config, int type, int code, int value) {
+void emitPermanentRemapping(int type, int code, int value) {
     if (config.bindings.isMappedKeyForPermanentRemapping(code)) {
         auto& sequenceList = config.bindings.getMappedKeyForPermanentRemapping(code);
         for (auto& combinationList: sequenceList) {
@@ -205,7 +205,7 @@ void emitPermanentRemapping(Config &config, int type, int code, int value) {
     }
 }
 
-void emitHyperBinding(Config &config, int type, int hyperKeyCode, int originalKeyCode, int value) {
+void emitHyperBinding(int type, int hyperKeyCode, int originalKeyCode, int value) {
     if (config.bindings.isMappedKeyForHyperBinding(hyperKeyCode, originalKeyCode)) {
         auto& sequenceList = config.bindings.getMappedKeyForHyperBinding(hyperKeyCode, originalKeyCode);
         for (auto& combinationList: sequenceList) {
