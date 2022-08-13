@@ -51,25 +51,34 @@ void processKey(int type, int code, int value) {
                     emitPermanentRemapping(type, code, value);
                 }
             } else if (config.bindings.hyperKeyExists(code)) {
-            //    // FIXME: This whole branch is possibly wrong. When I am already holding a hyper key down, I do NOT
-            //    //  want to change to a different hyper key, right?
+                if (currentHyperKey == code) {
+                    if (isUp(value)) {
+                        state = States::idle;
 
-            //    if (!isDown(value)) {
-                    state = idle;
-
-                if (!isModifier(code) && isDown(value)) {
-                    if (!hyperEmitted) {
-                        emitPermanentRemapping(config, type, currentHyperKey, EVENT_KEY_DOWN);
-                        hyperEmitted = true;
+                        if (!hyperEmitted) {
+                            emitPermanentRemapping(type, code, EVENT_KEY_DOWN);
+                            emitPermanentRemapping(type, code, EVENT_KEY_UP);
+                            hyperEmitted = true;
+                        } else {
+                            emitPermanentRemapping(type, code, EVENT_KEY_UP);
+                        }
                     }
-                    emitPermanentRemapping(config, type, code, value);
-                } else if (!hyperEmitted) {
-                    emitPermanentRemapping(config, type, code, EVENT_KEY_DOWN);
-                    emitPermanentRemapping(config, type, code, EVENT_KEY_UP);
-                } else {
-                    emitPermanentRemapping(config, type, code, value);
+                } else { // It is a different hyper key, but does not have any hyper key binding for the currentHyperKey.
+                    state = States::idle;
+
+                    if (!isModifier(code) && isDown(value)) {
+                        if (!hyperEmitted) {
+                            emitPermanentRemapping(type, currentHyperKey, EVENT_KEY_DOWN);
+                            hyperEmitted = true;
+                        }
+                        emitPermanentRemapping(type, code, value);
+                    } else if (!hyperEmitted) {
+                        emitPermanentRemapping(type, code, EVENT_KEY_DOWN);
+                        emitPermanentRemapping(type, code, EVENT_KEY_UP);
+                    } else {
+                        emitPermanentRemapping(type, code, value);
+                    }
                 }
-           //    }
 
             } else {
                 if (!isModifier(code) && isDown(value)) {
@@ -119,17 +128,19 @@ void processKey(int type, int code, int value) {
                     }
                 //}
             } else if (config.bindings.hyperKeyExists(code)) {
-                if (!isDown(value)) {
-                    state = idle;
-                    if (!hyperEmitted) {
-                        emitPermanentRemapping(config, type, currentHyperKey, EVENT_KEY_DOWN);
-                        //emitPermanentRemapping(config, type, currentHyperKey, EVENT_KEY_UP);
+                if (currentHyperKey == code && isUp(value)) {
+                    state = States::idle;
+
+                    for (const auto& queuedItem : emitQueue) {
+                        emitPermanentRemapping(type, queuedItem, EVENT_KEY_DOWN);
+                        emitPermanentRemapping(type, currentHyperKey, EVENT_KEY_UP);
                     }
-                    for (auto& queuedItem : emitQueue) {
-                        emitPermanentRemapping(config, type, queuedItem, EVENT_KEY_DOWN);
-                        emitPermanentRemapping(config, type, currentHyperKey, EVENT_KEY_UP);
-                    }
+
                     emitQueue.clear();
+                    if (!hyperEmitted) {
+                        emitPermanentRemapping(type, currentHyperKey, EVENT_KEY_DOWN);
+                        //emitPermanentRemapping(type, currentHyperKey, EVENT_KEY_UP);
+                    }
                 }
             } else {
                 state = States::map;
