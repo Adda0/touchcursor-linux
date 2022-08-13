@@ -2,14 +2,9 @@
 
 #include "keys.h"
 
-/**
- * Checks if the event is key down.
- * Linux input sends value=2 for repeated key down.
- * We treat them as keydown events for processing.
- * */
-int isDown(int value) {
-    return value == 1 || value == 2;
-}
+bool isDown(int value) { return value == 1 || value == 2; }
+
+bool isUp(int value) { return value == 0; }
 
 /**
  * Checks if the key is a keypad key.

@@ -12,7 +12,7 @@ class Config {
 public:
     Bindings bindings{};
 
-    bool isDebugMode() { return debugMode; }
+    bool isDebugMode() const { return debugMode; }
 
     void setDebugMode() { debugMode = true; }
 
