@@ -107,26 +107,32 @@ void processKey(int type, int code, int value) {
                 //        //emitQueue.pop_front();
                 //    }
                 //    emitQueue.push_back(code);
-                //    emitHyperBinding(type, currentHyperKey, code, EVENT_KEY_DOWN);
                 //} else {
                     //for (const auto& queuedItem : emitQueue) {
-                        bool differentKey{ emitQueue.front() != code };
-                        if (differentKey) {
+                        if (emitQueue.front() == code) {
+                            if (isDown(value)) {
+                                if (!emitQueue.empty()) {
+                                    for (const auto& queuedItem : emitQueue) {
+                                        emitHyperBinding(type, currentHyperKey, code, EVENT_KEY_DOWN);
+                                        //emitHyperBinding(type, currentHyperKey, code, EVENT_KEY_UP);
+                                        //emitQueue.clear();
+                                    }
+
+                                    emitQueue.push_back(code);
+                                }
+                            } else {
+                                emitHyperBinding(type, currentHyperKey, code, EVENT_KEY_DOWN);
+                                emitHyperBinding(type, currentHyperKey, code, EVENT_KEY_UP);
+                                emitQueue.pop_front();
+                            }
+                        } else { // Not same key.
                             emitHyperBinding(type, currentHyperKey, emitQueue.front(), EVENT_KEY_DOWN);
                             // FIXME: Probably not desired to emit DOWN UP for holding a key pressed down, right?
                             //  Wait up, that is exactly what a normal
                             //emitHyperBinding(type, currentHyperKey, emitQueue.front(), EVENT_KEY_UP);
+                            emitHyperBinding(type, currentHyperKey, code, EVENT_KEY_DOWN);
+                            emitQueue.push_back(code);
                         }
-                    //}
-
-                    emitHyperBinding(type, currentHyperKey, code, EVENT_KEY_DOWN);
-                    if (!differentKey) {
-                        emitHyperBinding(type, currentHyperKey, code, EVENT_KEY_UP);
-                        emitQueue.clear();
-                    } else {
-                        emitQueue.push_back(code);
-                    }
-                //}
             } else if (config.bindings.hyperKeyExists(code)) {
                 if (currentHyperKey == code && isUp(value)) {
                     state = States::idle;
@@ -135,35 +141,32 @@ void processKey(int type, int code, int value) {
                         emitPermanentRemapping(type, currentHyperKey, EVENT_KEY_DOWN);
                     }
 
-                    for (const auto& queuedItem : emitQueue) {
+                    for (const auto &queuedItem: emitQueue) {
                         emitPermanentRemapping(type, queuedItem, EVENT_KEY_DOWN);
                         //emitPermanentRemapping(type, queuedItem, EVENT_KEY_UP);
                     }
                     emitQueue.clear();
 
                     emitPermanentRemapping(type, currentHyperKey, EVENT_KEY_UP);
+                } else {
+                    state = States::map;
+                    emitPermanentRemapping(type, code, value);
                 }
-            } else {
-                state = States::map;
-                emitPermanentRemapping(type, code, value);
             }
             break;
         }
         case States::map: // 3
         {
             if (config.bindings.isMappedKeyForHyperBinding(currentHyperKey, code)) {
-                if (isDown(value)) {
-                    emitQueue.push_back(code);
-                    emitHyperBinding(type, currentHyperKey, code, EVENT_KEY_DOWN);
-                } else {
-                    if (emitQueue.front() == code) {
-                        emitHyperBinding(type, currentHyperKey, code, EVENT_KEY_UP);
-                        emitQueue.clear();
-                    } else {
-
-                    }
-
-                }
+                        if (isDown(value)) {
+                            emitHyperBinding(type, currentHyperKey, code, EVENT_KEY_DOWN);
+                            emitQueue.push_back(code);
+                        } else {
+                            for (const auto& queuedItem: emitQueue) {
+                                emitHyperBinding(type, currentHyperKey, queuedItem, EVENT_KEY_UP);
+                            }
+                            emitQueue.clear();
+                        }
             } else if (config.bindings.hyperKeyExists(code)) {
                 if (code == currentHyperKey && !isDown(value)) {
                     state = States::idle;
