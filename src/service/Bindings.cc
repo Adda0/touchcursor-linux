@@ -92,13 +92,13 @@ bool Bindings::isHyperNamesWithoutKeyEmpty() {
 }
 
 void Bindings::bindHyperNamesWithoutKeys() {
-    for (auto hyperNameWithoutKey: this->hyperNamesWithoutKey) {
-        auto hyperNameKey{this->hyperNamesMap.find(hyperNameWithoutKey)};
-        if (hyperNameKey != this->hyperNamesMap.end()) {
+    for (const auto& hyperNameWithoutKey: hyperNamesWithoutKey) {
+        auto hyperNameKey{hyperNamesMap.find(hyperNameWithoutKey)};
+        if (hyperNameKey != hyperNamesMap.end()) {
             THyperKey defaultHyperNameKey = std::hash<std::string>{}(hyperNameWithoutKey);
-            auto hyperBindings{this->hyperBindings.find(defaultHyperNameKey)};
-            if (hyperBindings != this->hyperBindings.end()) {
-                auto hyperBindingsStruct{this->hyperBindings.extract(defaultHyperNameKey).mapped()};
+            auto hyperBindingsForKey{hyperBindings.find(defaultHyperNameKey)};
+            if (hyperBindingsForKey != hyperBindings.end()) {
+                auto hyperBindingsStruct{hyperBindings.extract(defaultHyperNameKey).mapped()};
                 this->hyperBindings.insert_or_assign(hyperNameKey->second, hyperBindingsStruct);
             }
         } else {

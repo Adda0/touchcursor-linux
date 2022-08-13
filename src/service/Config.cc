@@ -268,10 +268,10 @@ Config Config::parseConfigurationFile(FILE *configFile) {
                 }
 
                 fromItem = line_str.substr(0, pos_equal);
-                std::cout << fromItem << std::endl;
+                //std::cout << fromItem << std::endl;
                 int fromCode = keyCodes.getKeyCodeFromKeyString(fromItem);
                 line_str.erase(0, pos_equal + 1);
-                std::cout << line_str << std::endl;
+                //std::cout << line_str << std::endl;
 
                 // Parse mapped keys.
                 TMappedKeysSequenceList toCodes{};
@@ -336,10 +336,10 @@ Config Config::parseConfigurationFile(FILE *configFile) {
                 }
 
                 fromItem = line_str.substr(0, pos_equal);
-                std::cout << fromItem << std::endl;
+                //std::cout << fromItem << std::endl;
                 int fromCode = keyCodes.getKeyCodeFromKeyString(fromItem);
                 line_str.erase(0, pos_equal + 1);
-                std::cout << line_str << std::endl;
+                //std::cout << line_str << std::endl;
 
                 // Parse mapped keys.
                 TMappedKeysSequenceList toCodes{};
@@ -368,17 +368,17 @@ Config Config::parseConfigurationFile(FILE *configFile) {
                 }
                 toCodes.back().push_back(keyCodes.getKeyCodeFromKeyString(line_str));
 
-                std::cout << "Current Hyper key empty: " << current_hyper_key.empty() << "\n";
+                //std::cout << "Current Hyper key empty: " << current_hyper_key.empty() << "\n";
 
                 if (current_hyper_key.empty()) {
-                    std::cout << "Adding common hyper key mapping.\n";
+                    //std::cout << "Adding common hyper key mapping.\n";
                     config.bindings.addCommonHyperMapping(fromCode, toCodes);
                     //std::cout << config.bindings.getMappedKeyForHyperBinding(hyperKey, fromCode) << "\n";
                 } else {
-                    std::cout << "Current hyper key: " << current_hyper_key << "\n";
+                    //std::cout << "Current hyper key: " << current_hyper_key << "\n";
                     config.bindings.addHyperMapping(config.bindings.getHyperKeyForHyperName(current_hyper_key),
                                                     fromCode, toCodes);
-                    std::cout << "Added specific hyper key option.\n";
+                    //std::cout << "Added specific hyper key option.\n";
                 }
 
                 break;

@@ -18,3 +18,4 @@ libtest_sources.a
 Testing/Temporary
 
 Makefile
+cmake-build-debug

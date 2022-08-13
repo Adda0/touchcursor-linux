@@ -15,7 +15,7 @@ char emitString[8];
  * */
 int emit(int type, int code, int value)
 {
-    std::cout << "emit: code=" << code << " value=" << value << "\n";
+    //std::cout << "emit: code=" << code << " value=" << value << "\n";
     sprintf(emitString, "%i:%i ", code, value);
     strcat(outputString, emitString);
 
