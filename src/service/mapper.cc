@@ -131,16 +131,17 @@ void processKey(int type, int code, int value) {
                 if (currentHyperKey == code && isUp(value)) {
                     state = States::idle;
 
-                    for (const auto& queuedItem : emitQueue) {
-                        emitPermanentRemapping(type, queuedItem, EVENT_KEY_DOWN);
-                        emitPermanentRemapping(type, currentHyperKey, EVENT_KEY_UP);
-                    }
-
-                    emitQueue.clear();
                     if (!hyperEmitted) {
                         emitPermanentRemapping(type, currentHyperKey, EVENT_KEY_DOWN);
-                        //emitPermanentRemapping(type, currentHyperKey, EVENT_KEY_UP);
                     }
+
+                    for (const auto& queuedItem : emitQueue) {
+                        emitPermanentRemapping(type, queuedItem, EVENT_KEY_DOWN);
+                        //emitPermanentRemapping(type, queuedItem, EVENT_KEY_UP);
+                    }
+                    emitQueue.clear();
+
+                    emitPermanentRemapping(type, currentHyperKey, EVENT_KEY_UP);
                 }
             } else {
                 state = States::map;
