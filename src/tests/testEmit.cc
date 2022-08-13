@@ -76,6 +76,13 @@ TEST_CASE("Emit events according to configuration", "[emit]") {
                 REQUIRE(expected == outputString);
             }
 
+            SECTION("Space down, Other down, up, Mapped down, up, Space up") {
+                expected = "31:1 31:0 34:1 34:0";
+                type(12, KEY_SPACE, EVENT_KEY_DOWN, KEY_S, EVENT_KEY_DOWN, KEY_S, EVENT_KEY_UP, KEY_H, EVENT_KEY_DOWN, KEY_H, EVENT_KEY_UP, KEY_SPACE,
+                     EVENT_KEY_UP);
+                REQUIRE(expected == outputString);
+            }
+
             SECTION("V down, up") {
                 expected = "47:1 47:0 ";
                 type(4, KEY_V, EVENT_KEY_DOWN, KEY_V, EVENT_KEY_UP);
