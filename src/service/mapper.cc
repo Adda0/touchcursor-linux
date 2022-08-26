@@ -1,4 +1,3 @@
-#include <cstdio>
 #include <iostream>
 #include <deque>
 #include <algorithm>
@@ -18,10 +17,10 @@ void processKey(int type, int code, int value) {
     // The state machine state.
     static States state{ States::idle };
 
-    static THyperKey currentHyperKey{0};
+    static THyperKey currentHyperKey{ 0 };
 
     // Flag if the hyper key has been emitted.
-    static bool hyperPressedDownEmitted;
+    static bool hyperPressedDownEmitted{};
 
     //printf("processKey(in): code=%i value=%i state=%i\n", code, value, state);
     switch (state) {
@@ -46,7 +45,7 @@ void processKey(int type, int code, int value) {
                 // A hyper key is being held down and a new key is pressed or released.
                 if (isDown(value)) {
                     state = States::delay;
-                    emitQueue.push_back(code);
+                    emitQueue.push_front(code);
                 } else { // isUp(value)
                     emitPermanentRemapping(type, code, value);
                 }
@@ -58,6 +57,8 @@ void processKey(int type, int code, int value) {
 
                         if (!hyperPressedDownEmitted) {
                             emitPermanentRemapping(type, currentHyperKey, EVENT_KEY_DOWN);
+                            // TODO: Not necessary since hyperPressedDownEmitted will be overwritten when in States::idle
+                            //  hyper key is pressed down.
                             hyperPressedDownEmitted = true;
                         }
                         emitPermanentRemapping(type, currentHyperKey, EVENT_KEY_UP);
@@ -65,24 +66,25 @@ void processKey(int type, int code, int value) {
                         state = States::idle;
                     }
                 } else { // It is a different hyper key, but does not have any hyper key binding for the currentHyperKey.
-                    // FIXME.
-                    state = States::idle;
+                    // FIXME: WIP.
 
-                    if (!isModifier(code) && isDown(value)) {
+                    //if (!isModifier(code) && isDown(value)) {
                         if (!hyperPressedDownEmitted) {
                             emitPermanentRemapping(type, currentHyperKey, EVENT_KEY_DOWN);
                             hyperPressedDownEmitted = true;
                         }
                         emitPermanentRemapping(type, code, value);
-                    } else if (!hyperPressedDownEmitted) {
-                        emitPermanentRemapping(type, code, EVENT_KEY_DOWN);
-                        emitPermanentRemapping(type, code, EVENT_KEY_UP);
-                    } else {
-                        emitPermanentRemapping(type, code, value);
-                    }
+                    //} else if (!hyperPressedDownEmitted) {
+                    //    emitPermanentRemapping(type, code, EVENT_KEY_DOWN);
+                    //    emitPermanentRemapping(type, code, EVENT_KEY_UP);
+                    //} else {
+                    //    emitPermanentRemapping(type, code, value);
+                    //}
+
+                    //state = States::idle;
                 }
             } else { // Not hyper key binding, nor a hyper key.
-                // FIXME.
+                // FIXME: WIP.
                 if (!isModifier(code) && isDown(value)) {
                     if (!hyperPressedDownEmitted) {
                         emitPermanentRemapping(type, currentHyperKey, EVENT_KEY_DOWN);
@@ -90,10 +92,10 @@ void processKey(int type, int code, int value) {
                     }
                     emitPermanentRemapping(type, code, value);
                 } else {
-                    if (!hyperPressedDownEmitted) {
-                        emitPermanentRemapping(type, currentHyperKey, EVENT_KEY_DOWN);
-                        hyperPressedDownEmitted = true;
-                    }
+                    //if (!hyperPressedDownEmitted) {
+                    //    emitPermanentRemapping(type, currentHyperKey, EVENT_KEY_DOWN);
+                    //    hyperPressedDownEmitted = true;
+                    //}
                     emitPermanentRemapping(type, code, value);
                 }
             }
@@ -126,21 +128,22 @@ void processKey(int type, int code, int value) {
                 state = States::map;
 
             } else if (config.bindings.hyperKeyExists(code)) {
-                if (currentHyperKey == code && isUp(value)) {
+                if (currentHyperKey == code) {
+                    if (isUp(value)) {
+                        if (!hyperPressedDownEmitted) {
+                            emitPermanentRemapping(type, currentHyperKey, EVENT_KEY_DOWN);
+                        }
 
-                    if (!hyperPressedDownEmitted) {
-                        emitPermanentRemapping(type, currentHyperKey, EVENT_KEY_DOWN);
+                        for (const auto& queuedItem: emitQueue) {
+                            emitPermanentRemapping(type, queuedItem, EVENT_KEY_DOWN);
+                        }
+                        emitQueue.clear(); // FIXME: Not necessary: States::Idle will clear.
+
+                        emitPermanentRemapping(type, currentHyperKey, EVENT_KEY_UP);
+
+                        state = States::idle;
                     }
-
-                    for (const auto &queuedItem: emitQueue) {
-                        emitPermanentRemapping(type, queuedItem, EVENT_KEY_DOWN);
-                    }
-                    emitQueue.clear();
-
-                    emitPermanentRemapping(type, currentHyperKey, EVENT_KEY_UP);
-
-                    state = States::idle;
-                } else {
+                } else { // Not currentHyperKey nor is mapped. Just a normal key.
                     // FIXME.
                     state = States::map;
                     emitPermanentRemapping(type, code, value);

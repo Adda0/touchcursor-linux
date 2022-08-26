@@ -77,7 +77,7 @@ TEST_CASE("Emit events according to configuration", "[emit]") {
             }
 
             SECTION("Space down, Other down, up, Mapped down, up, Space up") {
-                expected = "31:1 31:0 34:1 34:0";
+                expected = "57:1 31:1 31:0 34:1 34:0 ";
                 type(12, KEY_SPACE, EVENT_KEY_DOWN, KEY_S, EVENT_KEY_DOWN, KEY_S, EVENT_KEY_UP, KEY_H, EVENT_KEY_DOWN, KEY_H, EVENT_KEY_UP, KEY_SPACE,
                      EVENT_KEY_UP);
                 REQUIRE(expected == outputString);
@@ -237,6 +237,14 @@ TEST_CASE("Emit events according to configuration", "[emit]") {
                 expected = "57:1 42:1 42:0 57:0 ";
                 type(8, KEY_SPACE, EVENT_KEY_DOWN, KEY_LEFTSHIFT, EVENT_KEY_DOWN, KEY_LEFTSHIFT, EVENT_KEY_UP,
                      KEY_SPACE, EVENT_KEY_UP);
+                REQUIRE(expected == outputString);
+            }
+
+            SECTION("Space down, other (modifier) down, mapped down, up, other (modifier) up, space up") {
+                // The mapped keys should not be converted.
+                expected = "42:1 25:1 25:0 42:0 ";
+                type(12, KEY_SPACE, EVENT_KEY_DOWN, KEY_LEFTSHIFT, EVENT_KEY_DOWN, KEY_U, EVENT_KEY_DOWN, KEY_U,
+                     EVENT_KEY_UP, KEY_LEFTSHIFT, EVENT_KEY_UP, KEY_SPACE, EVENT_KEY_UP);
                 REQUIRE(expected == outputString);
             }
         }
