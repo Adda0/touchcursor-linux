@@ -213,7 +213,7 @@ FILE *Config::findConfigurationFile(const std::string &configPath) {// Find the 
 
 Config Config::parseConfigurationFile(FILE *configFile) {
     Config config{};
-    char *buffer = NULL;
+    char* buffer = nullptr;
     size_t length = 0;
     ssize_t result = -1;
     std::string current_hyper_key{};
