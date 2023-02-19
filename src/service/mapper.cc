@@ -24,8 +24,7 @@ void processKey(int type, int code, int value) {
 
     //printf("processKey(in): code=%i value=%i state=%i\n", code, value, state);
     switch (state) {
-        case States::idle:
-        {
+        case States::idle: {
             if (config.bindings.hyperKeyExists(code) && isDown(value)) {
                 //std::cout << "Idle: Hyper key " << code << " pressed.\n";
                 state = States::hyper;
@@ -37,8 +36,7 @@ void processKey(int type, int code, int value) {
             }
             break;
         }
-        case States::hyper:
-        {
+        case States::hyper: {
             // Once a hyper key is pressed, we do not want to be able to change to bindings for other hyper keys. Therefore,
             // we would like to possibly emit a mapped key binding for the already pressed hyper binding.
             if (config.bindings.isMappedKeyForHyperBinding(currentHyperKey, code)) {
@@ -101,8 +99,7 @@ void processKey(int type, int code, int value) {
             }
             break;
         }
-        case States::delay:
-        {
+        case States::delay: {
             if (config.bindings.isMappedKeyForHyperBinding(currentHyperKey, code)) {
                 if (emitQueue.front() == code) {
                     if (isDown(value)) {
@@ -123,7 +120,7 @@ void processKey(int type, int code, int value) {
                     emitQueue.push_back(code);
                 }
 
-                // At least one hyper binding was emitted. THe hyper key is being used as a hyper key, not just to emit
+                // At least one hyper binding was emitted. The hyper key is being used as a hyper key, not just to emit
                 //  the hyper key code.
                 state = States::map;
 
@@ -151,8 +148,7 @@ void processKey(int type, int code, int value) {
             }
             break;
         }
-        case States::map:
-        {
+        case States::map: {
             if (config.bindings.isMappedKeyForHyperBinding(currentHyperKey, code)) {
                 if (emitQueue.front() == code) {
                     if (isDown(value)) {

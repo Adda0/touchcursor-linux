@@ -21,14 +21,14 @@ public:
      * @param configPath Path to the configuration file.
      * @return Config object configurad from given configuration file.
      */
-    static Config fromConfigFile(const std::string &configPath = "");
+    static Config fromConfigFile(const std::string& configPath = "");
 
 private:
-    bool debugMode{false};
+    bool debugMode{ false };
 
-    static Config parseConfigurationFile(FILE *configFile);
+    static Config parseConfigurationFile(FILE* configFile);
 
-    static FILE *findConfigurationFile(const std::string &configPath);
+    static FILE* findConfigurationFile(const std::string& configPath);
 };
 
 #endif

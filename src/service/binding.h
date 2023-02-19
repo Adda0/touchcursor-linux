@@ -11,7 +11,7 @@
  * cause is. For further reference, see
  * https://github.com/donniebreve/touchcursor-linux/pull/39#issuecomment-1000901050.
  */
-#define MAX_KEYS_TO_ENABLE_KEY_EVENTS_HANDLING_FOR 572
+constexpr int MAX_KEYS_TO_ENABLE_KEY_EVENTS_HANDLING_FOR{ 572 };
 
 extern int input;
 

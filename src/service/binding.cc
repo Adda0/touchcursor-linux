@@ -1,11 +1,9 @@
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <unistd.h>
 #include <fcntl.h>
-#include <errno.h>
+#include <cerrno>
 #include <linux/input.h>
 #include <linux/uinput.h>
 
@@ -35,7 +33,7 @@ int bindInput(char *eventPath) {
         return EXIT_FAILURE;
     }
     // Check that the device is not our virtual device
-    if (strcasestr(keyboardName, "Virtual TouchCursor Keyboard") != NULL) {
+    if (strcasestr(keyboardName, "Virtual TouchCursor Keyboard") != nullptr) {
         fprintf(stdout, "error: you cannot capture the virtual device: %s\n", strerror(errno));
         return EXIT_FAILURE;
     }
