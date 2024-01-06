@@ -2,7 +2,8 @@
 Description=Touch Cursor Service
 
 [Service]
-ExecStart=/usr/bin/touchcursor
+# ExecStart=/usr/bin/touchcursor
+ExecStart=%h/.local/bin/touchcursor
 
 [Install]
 WantedBy=default.target
