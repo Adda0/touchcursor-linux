@@ -1,3 +1,6 @@
+Discontinued in favor of the fantastic [xremap](https://github.com/k0kubun/xremap) key mapper for both Wayland and X11.
+Go take a look at `xremap`, you will not regret it if TouchCursor was what you were interested in.
+
 # touchcursor-linux
 This application was designed to remap the `uiophjklnmy` keys to different movement keys when the spacebar is pressed down, allowing you to keep your hands on the home row. It has grown to allow remapping all the keys, even the hyper key.
 
